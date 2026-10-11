@@ -25,8 +25,8 @@ document.querySelector('#start').onclick=async()=>{
  try{
   const G=await import('https://cdn.jsdelivr.net/npm/gaussian-splats-3d@0.4.7/build/gaussian-splats-3d.module.js');
   const viewer=new G.Viewer({rootElement:root,sharedMemoryForWorkers:false,renderMode:G.RenderMode.Always, cameraUp:[0,-1,0],initialCameraPosition:[0,0,5],initialCameraLookAt:[0,0,0],useBuiltInControls:true});
-  const sceneUrl='https://cdn.viggle.ai/3d-editor-assets/environments/38f4b153-87d1-4ab2-bb05-4fb911da5f2d/iter/0/normalised.spz?Expires=1791777600&KeyName=vigglecloudcdn2&Signature=u1IMPhxxeRcr1zbI8-tv7E0fkoU';
-  await viewer.addSplatScene(sceneUrl,{showLoadingUI:true,splatAlphaRemovalThreshold:5,format:G.SceneFormat.Ply});
+  const sceneUrl='https://cdn.viggle.ai/3d-editor-assets/environments/38f4b153-87d1-4ab2-bb05-4fb911da5f2d/iter/0/normalised.spz?Expires=1791784800&KeyName=vigglecloudcdn2&Signature=q1RcLw2l1ozHlsNxiEwPZFewWA4';
+  await viewer.addSplatScene(sceneUrl,{showLoadingUI:true,splatAlphaRemovalThreshold:5});
   viewer.start();status.textContent='SCENE LOADED';
   document.querySelector('#help').textContent='Scene loaded. Drag to inspect the environment. Next: verify route scale, player framing, mobile performance and seamless joins.';
  }catch(e){fail('Environment renderer could not load the PINOC scene.\n'+(e?.stack||e?.message||String(e))+'\nCheck network access and whether the temporary signed asset URL has expired.');}
