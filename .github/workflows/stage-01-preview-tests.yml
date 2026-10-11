@@ -77,4 +77,4 @@ jobs:
       - name: Run Chromium smoke tests
         run: |
           node server.cjs &
-          npx playwright test --config=/dev/null --reporter=line stage01.spec.cjs
+          npx playwright test --reporter=line stage01.spec.cjs
