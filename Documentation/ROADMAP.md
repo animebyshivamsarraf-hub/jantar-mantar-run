@@ -1,42 +1,35 @@
 # Development Roadmap
 
-## Phase 0 — Repository and asset intake
-- [ ] Upload `Endless Runner (1).fbx` using a binary-safe method.
-- [ ] Record asset source and usage rights.
-- [ ] Choose Unity Editor version and target device baseline.
+## Stage 0 — Project brief and assets
+- [x] Define game title, setting, core loop and target platform.
+- [x] Document controls and visual direction.
+- [ ] Add the uploaded FBX through a binary-safe repository workflow.
+- [ ] Verify asset scale, orientation, rig, materials and colliders in Unity.
 
-## Phase 1 — Environment validation
-- [ ] Import the FBX into `Assets/Environment/`.
-- [ ] Inspect scale, axis orientation, meshes, materials, textures, and normals.
-- [ ] Add or simplify colliders.
-- [ ] Confirm a clear three-lane path.
-- [ ] Measure performance on a target device.
+## Stage 1 — Playable greybox
+- [ ] Create Unity project and main scene.
+- [ ] Implement continuous forward movement and three-lane switching.
+- [ ] Implement jump, slide and touch gestures.
+- [ ] Add obstacle collisions, coins, score and distance.
+- [ ] Add game-over and restart flow.
 
-## Phase 2 — Playable greybox
-- [ ] Create a gameplay scene and placeholder player.
-- [ ] Implement three-lane movement, jump, and slide.
-- [ ] Add camera follow and collision handling.
-- [ ] Add reusable road segments and obstacle spawning.
-- [ ] Add Game Over and restart UI.
+## Stage 2 — Chase and game feel
+- [ ] Add chase pacing and non-graphic capture sequence.
+- [ ] Add sound effects, animation transitions and camera feedback.
+- [ ] Test edge cases and tune difficulty.
 
-## Phase 3 — Chase loop
-- [ ] Add police chase visuals and a clear catch condition.
-- [ ] Add opening scene and gameplay transition.
-- [ ] Add short detention cutscene.
-- [ ] Add run summary and restart flow.
+## Stage 3 — Visual production
+- [ ] Create/import original runner and police characters.
+- [ ] Build Delhi-inspired road, traffic and landmark set dressing.
+- [ ] Add materials, lighting, particles and optimized UI.
+- [ ] Track asset provenance and licenses.
 
-## Phase 4 — Art and polish
-- [ ] Add approved art and animations.
-- [ ] Add coins, score, and optional difficulty ramp.
-- [ ] Add original/licensed sound and cleared meme clips.
-- [ ] Add mobile touch UI, pause/settings, and accessibility.
-- [ ] Optimize textures, lighting, memory, and draw calls.
+## Stage 4 — Device validation
+- [ ] Test performance and touch input on Android.
+- [ ] Fix memory, collision and readability issues.
+- [ ] Consider WebGL only after a real browser build is generated and tested.
 
-## Phase 5 — Testing
-- [ ] Test on a real Android device.
-- [ ] Check frame rate, loading, touch response, memory, heat, and crashes.
-- [ ] Make a development build and document results.
-- [ ] Evaluate WebGL separately; do not claim browser support before testing.
-
-## First prototype is done when
-The player can start, run in three lanes, jump/slide, collide with or avoid obstacles, be caught, see Game Over, and restart without errors.
+## Stage 5 — Release
+- [ ] Create release build and installation instructions.
+- [ ] Publish a verified build/download or hosted browser version.
+- [ ] Document known issues and supported devices.
