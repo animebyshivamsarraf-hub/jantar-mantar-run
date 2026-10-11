@@ -1,36 +1,30 @@
 # AI Build Instructions
 
-## Required workflow
-1. Inspect the existing repository before editing.
-2. Report what exists before adding files.
-3. Work in small, reviewable steps; do not rewrite the whole project without approval.
-4. Never claim a build or test succeeded unless it was actually run.
-5. Keep binary assets binary-safe; never generate a fake FBX or use a text placeholder with an FBX extension.
-6. Ask before adding paid services, third-party assets, analytics, or network features.
+Use this as a production brief for AI-assisted asset creation and implementation. Do not claim a feature is complete unless its files are committed and tested.
 
-## Goal
-Build a Unity mobile endless runner titled **JANTAR MANTAR RUN — Delhi Chase**, a fictional stylized action-comedy experience.
+## Project
+Create **JANTAR MANTAR RUN — Delhi Chase**, a third-person three-lane endless runner for Android, with a Delhi-inspired setting and realistic/cinematic 3D art direction.
 
-## Build order
-1. Validate the Unity project and imported environment.
-2. Create a minimal playable greybox scene.
-3. Implement three-lane movement, jump, slide, camera follow, and obstacle collisions.
-4. Implement road recycling and obstacle spawning.
-5. Implement chase/caught state, Game Over, and restart.
-6. Add opening and detention cutscenes.
-7. Add approved art/audio, UI, optimization, and Android testing.
+## First playable milestone
+- Main menu with Play.
+- Continuous forward movement and smooth three-lane switching.
+- Jump and slide actions.
+- Obstacles (barriers and traffic) with collision handling.
+- Collectible coins and score/distance HUD.
+- Police chase pressure and a short non-graphic capture/game-over sequence.
+- Restart, pause and resume.
+- Keyboard controls for editor testing and touch controls for Android.
 
-## Code expectations
-- Use small C# MonoBehaviour scripts with inspector-assignable fields.
-- Avoid brittle hard-coded scene lookups.
-- Guard against repeated collision/Game Over triggers.
-- Separate gameplay logic from UI and cutscene logic.
-- Make movement states deterministic.
-- Use pooling or segment recycling rather than unlimited instantiation.
-- Include setup instructions and a manual verification checklist.
+## Visual brief
+Use original fictional characters. Use Delhi-inspired street props, bus/auto-rickshaw traffic, road markings and a Jantar Mantar-inspired landmark. Favor realistic materials and lighting, readable silhouettes and mobile-friendly performance. Do not copy the identity of a person in a reference video.
 
-## Deliverables per step
-List files changed, Unity scene/prefab setup, Editor version tested, actual compile/build results, known limitations, and next steps.
+## Implementation rules
+1. Inspect the repository before creating or replacing files.
+2. Preserve existing work; implement one small, testable milestone at a time.
+3. Keep scripts and assets organized under `Assets/`.
+4. Record source and usage rights for every non-original asset.
+5. Test collisions, restart, lane switching, jump/slide and mobile controls.
+6. Do not claim the game is playable or share a live URL until a build is produced and verified.
 
-## Browser preview
-A public GitHub repository is not a playable browser preview. WebGL export requires a configured Unity project and testing. If browser access is important, validate WebGL feasibility and mobile-browser performance before making it a target.
+## Asset import checklist
+For every FBX/GLB, verify units, forward axis, pivot, materials/textures, rig/animations, collider setup and file size. Create simplified colliders and LODs where appropriate.
