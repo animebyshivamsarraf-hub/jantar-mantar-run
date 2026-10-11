@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Area 01 — Jantar Mantar Environment Preview</title>
+<title>Area 01 — Realistic Delhi Upgrade Preview</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#18222c;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#viewer{position:fixed;inset:0}.topbar{position:fixed;z-index:10;top:12px;left:12px;right:12px;display:flex;gap:10px;align-items:center;justify-content:space-between;pointer-events:none}.chip,.back{background:#101a2be8;border:1px solid #ffffff35;border-radius:12px;padding:10px 13px;font-size:12px;font-weight:800;color:#fff;text-decoration:none;pointer-events:auto}.status{position:fixed;z-index:10;left:50%;top:50%;transform:translate(-50%,-50%);max-width:min(88vw,440px);padding:18px 20px;border-radius:18px;background:#101a2bf2;border:1px solid #ffffff40;text-align:center;line-height:1.5}.status small{display:block;color:#cad5e1;margin-top:8px}.hide{display:none!important}.foot{position:fixed;bottom:12px;left:12px;right:12px;text-align:center;font-size:11px;color:#f1f5f9;text-shadow:0 1px 4px #000;pointer-events:none}
 </style>
 </head>
 <body>
 <div id="viewer"></div>
-<div class="topbar"><a class="back" href="https://github.com/animebyshivamsarraf-hub/jantar-mantar-run/blob/main/index.html">← BACK TO GAME</a><div class="chip">AREA 01 · JANTAR MANTAR</div></div>
-<div id="status" class="status">Loading Area 01 environment…<small>First load may take a little while on mobile.</small></div>
-<div class="foot">Drag to look around · Pinch to zoom · Area 01 environment preview</div>
+<div class="topbar"><a class="back" href="https://animebyshivamsarraf-hub.github.io/jantar-mantar-run/">← BACK TO GAME</a><div class="chip">AREA 01 · REALISTIC UPGRADE</div></div>
+<div id="status" class="status">Loading PINOC realistic environment…<small>First load may take a little while on mobile.</small></div>
+<div class="foot">Drag to look around · Pinch to zoom · PINOC realistic environment preview</div>
 <script type="module">
 const status=document.querySelector('#status');
 try {
@@ -26,7 +26,7 @@ try {
     gpuAcceleratedSort: true,
     sceneRevealMode: GaussianSplats3D.SceneRevealMode.Instant
   });
-  await viewer.addSplatScene('https://raw.githubusercontent.com/animebyshivamsarraf-hub/jantar-mantar-run/main/public/assets/environments/area-01-jantar-mantar.spz', {
+  await viewer.addSplatScene('https://cdn.viggle.ai/3d-editor-assets/environments/5f7a1776-2762-43c0-a5a9-2e1d03b21d2c/iter/0/normalised.spz?Expires=1791745200&KeyName=vigglecloudcdn2&Signature=wUEDMK8FH0u4H4JAuBdW9yWaiic', {
     format: GaussianSplats3D.SceneFormat.Spz,
     splatAlphaRemovalThreshold: 5,
     showLoadingUI: true,
@@ -40,7 +40,7 @@ try {
   addEventListener('resize', () => viewer.onResize?.());
 } catch (error) {
   console.error(error);
-  status.innerHTML = 'Area 01 scene could not load.<small>Check your connection, then reload. If the error continues, the SPZ renderer or asset path needs fixing.</small>';
+  status.innerHTML = 'Environment could not load.<small>The temporary PINOC asset link may have expired or the network may be blocking it. Reload or regenerate a fresh preview link.</small>';
 }
 </script>
 </body>
