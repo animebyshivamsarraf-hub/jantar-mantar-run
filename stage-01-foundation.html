@@ -29,18 +29,6 @@ for(let z=-5;z>-75;z-=9){for(const x of [-8,8]){cube(mat('#67503c'),x,.8,z,.2,1.
 function landmark(x,z,s){cube(mat('#a34f3c'),x,1.1*s,z,3*s,2.2*s,2.6*s);cube(mat('#d6c5a2'),x,2.3*s,z,2.8*s,.15*s,2.4*s);cube(mat('#a34f3c'),x,2.8*s,z,2.2*s,.9*s,1.8*s)}
 landmark(-10,-14,1);landmark(10,-25,.8);
 for(let z=-8;z>-65;z-=9)for(const x of [-5.1,5.1]){cube(mat('#d7b449'),x,.4,z,1.5,.8,.18);cube(mat('#eee8d9'),x,.4,z-.1,.16,.6,.04)}
-// First Delhi-inspired landmark pass: readable route sign, protest canopies and road markings.
-const signMat=new T.MeshStandardMaterial({color:'#174c3c',roughness:.8});
-cube(mat('#77756c'),-4.2,1.5,-11,.16,3,.16);
-cube(signMat,-4.2,2.65,-11,3.8,1.05,.16);
-function labelTexture(lines){const c=document.createElement('canvas');c.width=512;c.height=160;const ctx=c.getContext('2d');ctx.fillStyle='#174c3c';ctx.fillRect(0,0,512,160);ctx.fillStyle='#f7f0d7';ctx.font='bold 38px system-ui';ctx.textAlign='center';ctx.fillText(lines,256,95);const tex=new T.CanvasTexture(c);tex.colorSpace=T.SRGBColorSpace;return tex}
-const signFace=new T.Mesh(new T.PlaneGeometry(3.65,.92),new T.MeshBasicMaterial({map:labelTexture('SANSAD MARG'),side:T.DoubleSide}));
-signFace.position.set(-4.2,2.65,-10.9);group.add(signFace);
-// Simple fabric-like protest shelters on the verges; these are placeholders, not final assets.
-function tent(x,z,color){const fabric=mat(color);cube(mat('#6b6252'),x,.55,z,2.5,.12,2);const roof=new T.Mesh(new T.ConeGeometry(1.65,.85,4),fabric);roof.position.set(x,1.35,z);roof.rotation.y=Math.PI/4;roof.scale.set(1,1,1.05);group.add(roof);cube(mat('#423d34'),x,.48,z+1.02,1.1,.85,.08)}
-tent(-7,-21,'#b4a17c');tent(7,-34,'#b9b2a0');tent(-7,-47,'#8f9a87');
-// Dashed center line helps establish road depth in the greybox scene.
-for(let z=-4;z>-72;z-=7)cube(mat('#e7d8a4'),0,.015,z,.12,.025,2.8);
 const player=new T.Group();scene.add(player);cube(mat('#263a48'),0,1,0,.6,.9,.35,player);cube(mat('#25282b'),0,.3,0,.5,.5,.32,player);const head=new T.Mesh(new T.SphereGeometry(.22,12,10),mat('#9b6e50'));head.position.y=1.65;player.add(head);
 const s={x:0,z:3,active:false};function move(dx,dz){if(!s.active)return;s.x=T.MathUtils.clamp(s.x+dx,-4.5,4.5);s.z=T.MathUtils.clamp(s.z+dz,-65,3)}
 function reset(){s.x=0;s.z=3;player.position.set(0,0,3);camera.position.set(0,4,11);camera.lookAt(0,1,-2)}
