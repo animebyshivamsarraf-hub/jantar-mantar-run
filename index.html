@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>JANTAR MANTAR RUN — Delhi Chase</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#9bc8d8;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#fff}#game{display:block;width:100%;height:100%;touch-action:none}#hud{position:fixed;inset:0;pointer-events:none}.top{display:flex;justify-content:space-between;padding:14px;gap:8px}.pill{background:#111b2bd9;border:1px solid #ffffff35;border-radius:14px;padding:9px 12px;font-weight:800;font-size:12px;letter-spacing:.04em;box-shadow:0 5px 18px #0002}.pill small{display:block;font-size:10px;color:#cbd5e1;font-weight:600}.center{position:absolute;top:19%;left:50%;transform:translateX(-50%);text-align:center;width:min(90%,460px);text-shadow:0 2px 9px #14213d}.center h1{font-size:clamp(22px,5vw,38px);line-height:1.02;margin:0 0 7px;font-weight:1000;letter-spacing:-.04em}.center p{font-size:13px;margin:0}.bottom{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));width:100%;display:flex;justify-content:space-between;align-items:end;padding:0 16px;gap:12px}.controls{display:flex;gap:9px;pointer-events:auto}.btn{border:1px solid #ffffff55;color:#fff;background:#101a2be8;border-radius:18px;min-width:58px;min-height:54px;padding:10px 13px;font-size:12px;font-weight:900;box-shadow:0 5px 18px #0003;touch-action:manipulation}.btn:active{transform:scale(.96)}.btn.primary{background:#f5bd3b;color:#1b2432;border:0}.btn.wide{min-width:100px}.help{max-width:160px;font-size:10px;line-height:1.4;color:white;text-shadow:0 2px 4px #000;background:#101a2bbd;padding:10px;border-radius:12px}.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#07101bb8;padding:22px;pointer-events:auto}.panel{width:min(100%,390px);background:#111c2af2;border:1px solid #ffffff38;border-radius:24px;padding:24px;text-align:center;box-shadow:0 20px 70px #0006}.panel h2{margin:0 0 8px;font-size:26px}.panel p{color:#d3dce9;font-size:13px;line-height:1.55}.panel button{margin-top:10px;width:100%;border:0;border-radius:14px;padding:15px;font-size:15px;font-weight:950;background:#f5bd3b;color:#192232}.hidden{display:none!important}.toast{position:absolute;top:29%;left:50%;transform:translateX(-50%);padding:10px 16px;border-radius:12px;background:#101a2be8;font-weight:900;font-size:13px;white-space:nowrap;opacity:0;transition:opacity .2s}.toast.show{opacity:1}@media(min-width:760px){.bottom{padding:0 28px}.help{max-width:230px;font-size:12px}.btn{min-width:70px}.center{top:16%}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud">
+ <div class="top"><div class="pill">JMR <small>DELHI CHASE</small></div><div class="pill">DISTANCE <span id="distance">0</span> m</div><div class="pill">CHASE <span id="level">CALM</span></div></div>
+ <div class="center"><h1>JANTAR MANTAR RUN</h1><p id="subtitle">Protest zone · Sansad Marg ahead</p></div>
+ <div id="toast" class="toast"></div>
+ <div class="bottom"><div class="help" id="help">Explore the protest area. Tap ✊ to start your meme moment. The chase starts after that.</div><div class="controls"><button class="btn" id="left">◀<br>LEFT</button><button class="btn" id="right">▶<br>RIGHT</button><button class="btn" id="jump">⬆<br>JUMP</button><button class="btn" id="slide">⬇<br>SLIDE</button><button class="btn primary wide" id="protest">✊ PROTEST</button></div></div>
+ <div id="overlay" class="overlay"><div class="panel"><h2>Delhi ki sadkon par…</h2><p>Jantar Mantar ke protest area mein ghoomo. Protest button dabao, phir police chase shuru hogi. Barricades aur traffic se bachkar Sansad Marg ki taraf bhaago.</p><p><b>Controls:</b> swipe / arrow keys · jump · slide</p><button id="start">START EXPLORING</button></div></div>
+ <div id="gameover" class="overlay hidden"><div class="panel"><h2>DETAINED! 🚨</h2><p>Police ne is run mein pakad liya. Agli baar aur door bhaago!</p><p>Distance: <b id="finalDistance">0</b> m</p><button id="restart">TRY AGAIN</button></div></div>
+</div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+const canvas=document.querySelector('#game'), renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9ac6d6);scene.fog=new THREE.Fog(0x9ac6d6,36,115);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,220);camera.position.set(0,5.3,10.5);
+scene.add(new THREE.HemisphereLight(0xeaf5ff,0x6e6755,2.1));const sun=new THREE.DirectionalLight(0xffedce,2.4);sun.position.set(-9,17,7);sun.castShadow=true;scene.add(sun);
+const mat=(c,r=.85)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
+const asphalt=mat(0x50565a), pavement=mat(0xb5afa0), cream=mat(0xd8c8a5), red=mat(0xa43a2c), green=mat(0x356f4b), leaf=mat(0x477d45), white=mat(0xf2eee3), blue=mat(0x263c59), dark=mat(0x20242a), yellow=mat(0xf0c64a), skin=mat(0x9a6748), policeBlue=mat(0x253f72);
+function cube(parent,m,x,y,z,sx,sy,sz){const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+function cylinder(parent,m,x,y,z,rt,rb,h,seg=10){const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),m);o.position.set(x,y,z);o.castShadow=true;parent.add(o);return o}
+const world=new THREE.Group();scene.add(world);
+// road and pavements, forward is negative Z
+cube(world,asphalt,0,-.13,-38,12,.25,120);cube(world,pavement,-7,-.03,-38,2,.2,120);cube(world,pavement,7,-.03,-38,2,.2,120);
+for(let z=4;z>-100;z-=6){cube(world,yellow,-2,-.005,z,.07,.02,2.6);cube(world,yellow,2,-.005,z,.07,.02,2.6)}
+// opening plaza on near end, walkable ground
+cube(world,mat(0xb8ae96),0,-.28,8,27,.3,24);
+// historic Jantar Mantar inspired ochre-red masonry forms
+function observatory(x,z,s=1){const g=new THREE.Group();g.position.set(x,0,z);world.add(g);cube(g,red,0,1.2,0,4*s,2.4*s,3*s);cube(g,cream,0,2.45*s,0,3.7*s,.18*s,2.8*s);cube(g,red,0,3.1*s,0,2.8*s,1.3*s,2.3*s);cube(g,cream,0,3.78*s,0,3*s,.16*s,2.5*s);cube(g,red,0,4.1*s,0,1.4*s,.7*s,1.3*s);cylinder(g,cream,0,4.65*s,0,.12*s,.18*s,.5*s,8)}
+observatory(-12,-13,1.3);observatory(12,-24,.9);observatory(-12,-44,.8);
+// city blocks and trees
+function tree(x,z){cylinder(world,mat(0x6a4a32),x,.8,z,.18,.25,1.6);const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.25,1),leaf);crown.position.set(x,2.25,z);crown.castShadow=true;world.add(crown);const crown2=new THREE.Mesh(new THREE.IcosahedronGeometry(.85,1),green);crown2.position.set(x+.45,2.8,z+.2);world.add(crown2)}
+function building(x,z,w,h,d,col){cube(world,mat(col),x,h/2,z,w,h,d);for(let y=1;y<h-.5;y+=1.3)for(let xx=-w/2+.6;xx<w/2-.3;xx+=1.15)cube(world,mat(0x86a7b0),x+xx,y,z+d/2+.012,.42,.52,.03)}
+for(let z=-4;z>-110;z-=9){tree(-9.2,z);tree(9.2,z-3);if(z<-12){building(-14,z,5,4+(Math.abs(z)%9),5,0xc8bba2);building(14,z-4,5,5+(Math.abs(z)%8),5,0xd0c5b2)}}
+// Protest crowd behind barricade: simplified distinct people and blank signs
+const crowd=new THREE.Group();scene.add(crowd);
+function person(parent,x,z,shirt=blue,scale=1){const g=new THREE.Group();g.position.set(x,0,z);parent.add(g);cylinder(g,mat(shirt),0,.9,0,.22,.28,.9*scale,9);const head=new THREE.Mesh(new THREE.SphereGeometry(.19*scale,10,8),skin);head.position.set(0,1.55*scale,0);g.add(head);cube(g,mat(shirt),-.27,.95,0,.18,.62,.2);cube(g,mat(shirt),.27,.95,0,.18,.62,.2);return g}
+for(let i=0;i<25;i++){let x=-11+(i%13)*1.8,z=4-Math.floor(i/13)*2.0;person(crowd,x,z,[0x253b58,0x7a4138,0x456c4a,0xd0b77a,0x4d556b][i%5],.8+Math.random()*.3);if(i%4===0){cube(crowd,white,x,2.15,z-.1,.8,.55,.07)}}
+const barricades=new THREE.Group();scene.add(barricades);
+function barrier(x,z){cube(barricades,mat(0x6b7479),x,.48,z,2.2,.75,.22);for(let k=-.75;k<=.76;k+=.5)cube(barricades,mat(0xe9e8dc),x+k,.48,z-.125,.2,.62,.025);cube(barricades,red,x,.82,z,2.2,.12,.24)}
+for(let x=-8;x<=8;x+=2.5)barrier(x,-1.4);
+// player group, fictional stylized avatar
+const player=new THREE.Group();scene.add(player);const body=cube(player,mat(0x182c45),0,1.1,0,.7,1,.4);cube(player,dark,0,.43,0,.52,.65,.34);const head=new THREE.Mesh(new THREE.SphereGeometry(.28,16,12),skin);head.position.set(0,1.85,0);player.add(head);cube(player,dark,0,2.07,0,.43,.16,.39);const armL=cube(player,mat(0x182c45),-.48,1.28,0,.18,.72,.2),armR=cube(player,mat(0x182c45),.48,1.28,0,.18,.72,.2);const legL=cube(player,dark,-.19,.15,0,.2,.55,.24),legR=cube(player,dark,.19,.15,0,.2,.55,.24);
+// visible COCKROACH label attached behind the shirt
+const labelCanvas=document.createElement('canvas');labelCanvas.width=512;labelCanvas.height=128;const ctx=labelCanvas.getContext('2d');ctx.fillStyle='#f4f0e4';ctx.font='bold 58px Arial';ctx.textAlign='center';ctx.fillText('COCKROACH',256,82);const labelTex=new THREE.CanvasTexture(labelCanvas);const label=new THREE.Mesh(new THREE.PlaneGeometry(.65,.16),new THREE.MeshBasicMaterial({map:labelTex,transparent:true,side:THREE.DoubleSide}));label.position.set(0,1.28,-.207);player.add(label);player.position.set(0,0,5.8);
+// traffic and obstacles spawn ahead
+const obstacles=[];function spawnObstacle(z){const lane=[-3.6,0,3.6][Math.floor(Math.random()*3)],kind=Math.random();let o;if(kind<.34){o=new THREE.Group();cube(o,mat(0xb62f29),0,.8,0,2.1,1.5,3.2);cube(o,mat(0xe5d5a0),0,1.35,1.62,1.5,.25,.03);cube(o,mat(0x7da6b3),-.65,1.85,1.63,.5,.42,.04);cube(o,mat(0x7da6b3),.65,1.85,1.63,.5,.42,.04)}else if(kind<.7){o=new THREE.Group();cube(o,mat(0xe5e0cf),0,.55,0,1.6,1,.3);cube(o,red,0,.55,-.18,1.65,.35,.12)}else{o=new THREE.Group();cube(o,mat(0xd4d7d6),0,.6,0,1.6,1.1,.25);cube(o,red,0,.6,-.16,1.7,.3,.05)}o.position.set(lane,0,z);scene.add(o);obstacles.push({mesh:o,lane,kind:kind<.34?'bus':kind<.7?'barrier':'block',passed:false})}
+for(let i=0;i<9;i++)spawnObstacle(-25-i*12);
+const cops=[];function police(z){const p=person(scene,0,z,0x243f76,1.05);cube(p,mat(0x17263c),0,1.9,0,.42,.13,.38);cops.push(p);return p}for(let i=0;i<3;i++)police(9+i*1.5);
+let mode='intro',lane=1,worldSpeed=0,elapsed=0,dist=0,jump=0,slide=0,protestTime=0,policeHeat=0,lastSpawn=-130,toastTimer=0;
+const $=id=>document.getElementById(id);function toast(t){$('toast').textContent=t;$('toast').classList.add('show');toastTimer=2}
+function begin(){mode='explore';$('overlay').classList.add('hidden');$('help').textContent='Explore the open protest zone. Tap ✊ to trigger the protest and start the chase.';toast('Explore the protest area!')}
+function startChase(){if(mode!=='explore')return;mode='chase';worldSpeed=10;policeHeat=0;protestTime=2.5;$('subtitle').textContent='Police chase! Reach Sansad Marg';$('level').textContent='LEVEL 1';$('help').textContent='Swipe or use buttons. Dodge buses and barricades. The chase gets harder over time.';toast('PROTEST! Police chase started!')}
+function detain(){if(mode!=='chase')return;mode='caught';worldSpeed=0;$('finalDistance').textContent=Math.floor(dist);$('gameover').classList.remove('hidden');$('level').textContent='DETAINED';}
+function reset(){location.reload()}
+function moveLane(d){if(mode==='explore'){player.position.x=Math.max(-8,Math.min(8,player.position.x+d*1.5));return}if(mode!=='chase')return;lane=Math.max(0,Math.min(2,lane+d));player.position.x=[-3.6,0,3.6][lane]}
+function doJump(){if(mode==='chase'&&jump<=0&&slide<=0)jump=.85}
+function doSlide(){if(mode==='chase'&&slide<=0&&jump<=0)slide=.8}
+$('start').onclick=begin;$('restart').onclick=reset;$('left').onclick=()=>moveLane(-1);$('right').onclick=()=>moveLane(1);$('jump').onclick=doJump;$('slide').onclick=doSlide;$('protest').onclick=()=>{if(mode==='explore'){armL.rotation.z=-2.5;armR.rotation.z=2.5;toast('✊ Awaaz uthao! (Meme audio baad mein add hoga)');startChase()}else if(mode==='chase')toast('Abhi bhaago!')};
+let touchX=null,touchY=null;canvas.addEventListener('pointerdown',e=>{touchX=e.clientX;touchY=e.clientY});canvas.addEventListener('pointerup',e=>{if(touchX===null)return;const dx=e.clientX-touchX,dy=e.clientY-touchY;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy))moveLane(dx>0?1:-1);else if(dy<-35)doJump();else if(dy>35)doSlide();touchX=touchY=null});
+addEventListener('keydown',e=>{if(['ArrowLeft','a','A'].includes(e.key))moveLane(-1);if(['ArrowRight','d','D'].includes(e.key))moveLane(1);if(['ArrowUp','w','W',' '].includes(e.key))doJump();if(['ArrowDown','s','S'].includes(e.key))doSlide();if(e.key==='Enter'&&mode==='intro')begin()});
+function animate(t){requestAnimationFrame(animate);const dt=Math.min(.04,(t-(animate.last||t))/1000);animate.last=t;elapsed+=dt;if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)$('toast').classList.remove('show')}
+if(mode==='explore'){player.position.z=5.8;player.rotation.y+=(player.position.x*.015-player.rotation.y)*dt*2;camera.position.x+=(player.position.x*.22-camera.position.x)*dt;camera.position.z+=(10.5-camera.position.z)*dt;camera.lookAt(player.position.x*.12,1.2,-3)}
+if(mode==='chase'){dist+=worldSpeed*dt/2.8;worldSpeed=Math.min(23,10+dist*.012);policeHeat=Math.floor(dist/85);$('distance').textContent=Math.floor(dist);$('level').textContent=policeHeat===0?'LEVEL 1':policeHeat===1?'LEVEL 2':policeHeat===2?'LEVEL 3':'MAX CHASE';$('subtitle').textContent=dist<80?'Police chase! Reach Sansad Marg':dist<180?'Sansad Marg route — keep running!':'Delhi chase · survive as long as you can';world.children.forEach(o=>{if(o.userData.moving)o.position.z+=worldSpeed*dt});for(const o of obstacles){o.mesh.position.z+=worldSpeed*dt;if(o.mesh.position.z>9&&!o.passed){o.passed=true;if(Math.abs(o.lane-player.position.x)<1.7&&jump<.25&&slide<.25)detain()} }for(const c of cops){c.position.z+=worldSpeed*dt*.98;c.position.x+=(player.position.x-c.position.x)*dt*.45;if(c.position.z>player.position.z-1.2)detain()}if(-lastSpawn>0&&dist>Math.abs(lastSpawn)-25){spawnObstacle(-105);lastSpawn=-105-dist*.5; if(obstacles.length>16){const old=obstacles.shift();scene.remove(old.mesh)}}if(jump>0){jump-=dt;player.position.y=Math.sin((.85-jump)/.85*Math.PI)*1.8}else player.position.y+=(0-player.position.y)*dt*12;if(slide>0){slide-=dt;body.scale.y=.45;player.position.y=-.35}else{body.scale.y=1;player.position.y=Math.max(0,player.position.y);player.position.y+=(0-player.position.y)*dt*5}const run=Math.sin(elapsed*worldSpeed*1.1)*.45;legL.rotation.x=run;legR.rotation.x=-run;armL.rotation.x=-run*.8;armR.rotation.x=run*.8;camera.position.x+=(player.position.x*.28-camera.position.x)*dt*2;camera.position.z=player.position.z+10.5;camera.lookAt(player.position.x*.15,1.15,player.position.z-6);if(dist>0&&Math.floor(dist)%150===0&&Math.floor(dist)!==Math.floor((dist-worldSpeed*dt/2.8))){toast(policeHeat>1?'Police ne naya barricade lagaya!':'Police paas aa rahi hai!')}}
+renderer.render(scene,camera)}
+// Keep scenery anchored while chase road streams past
+world.children.forEach(o=>{o.userData.moving=true});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7))});
+requestAnimationFrame(animate);
+</script>
+</body></html>
