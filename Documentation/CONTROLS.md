@@ -1,23 +1,16 @@
-# Controls and Gameplay Rules
+# Controls
 
-## Planned mobile controls
-- Swipe left/right: change lane.
+## Desktop / editor test
+- **A / Left Arrow:** move one lane left.
+- **D / Right Arrow:** move one lane right.
+- **W / Up Arrow / Space:** jump.
+- **S / Down Arrow:** slide.
+- **Esc:** pause/resume (when implemented).
+
+## Mobile target
+- Swipe left/right: change lanes.
 - Swipe up: jump.
 - Swipe down: slide.
-- Optional on-screen buttons may be added for accessibility and testing.
+- Large on-screen Play, Pause and Restart buttons.
 
-## Planned editor test controls
-- Left/Right arrow or A/D: change lane.
-- Up arrow or Space: jump.
-- Down arrow or S: slide.
-- Escape: pause, if pause is implemented.
-
-## Rules
-- The runner stays within three lanes.
-- Lane changes should be quick and predictable.
-- Jump and slide have defined durations and return to running automatically.
-- Collisions can end the run or increase chase pressure depending on obstacle type.
-- The run ends when police catch the player.
-- Restart resets run-specific state.
-
-These are specifications; the controls are not implemented yet.
+These controls are a specification; they are not implemented until game scripts and UI are present and tested.
