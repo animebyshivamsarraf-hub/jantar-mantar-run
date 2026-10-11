@@ -20,6 +20,7 @@ A mobile-first, third-person 3D endless runner set in a fictional Delhi streetsc
 - [Controls](Documentation/CONTROLS.md)
 - [Visual direction / art bible](Documentation/VISUAL_DIRECTION.md)
 - [Work log and asset status](Documentation/WORK_LOG.md)
+- [World asset assembly pipeline](Documentation/WORLD_ASSET_PIPELINE.md)
 
 ## Planned Unity layout
 ```text
