@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Jantar Mantar Run — Delhi Chase</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#0a0e1a; font-family:'Segoe UI',system-ui,sans-serif; touch-action:none; user-select:none; }
+  #game { position:fixed; inset:0; }
+  canvas { display:block; }
+
+  /* ---------- HUD ---------- */
+  #hud { position:fixed; inset:0; pointer-events:none; z-index:5; display:none; }
+  #score { position:absolute; top:14px; left:16px; color:#fff; font-size:26px; font-weight:800; text-shadow:0 2px 8px #000; }
+  #coins { position:absolute; top:48px; left:16px; color:#ffd94d; font-size:20px; font-weight:700; text-shadow:0 2px 8px #000; }
+  #chaseWrap { position:absolute; top:14px; right:16px; width:150px; }
+  #chaseLabel { color:#ff6b6b; font-size:13px; font-weight:800; letter-spacing:2px; text-align:right; text-shadow:0 2px 6px #000; }
+  #chaseBar { height:14px; background:rgba(0,0,0,.55); border:2px solid #ff6b6b; border-radius:8px; overflow:hidden; margin-top:4px; }
+  #chaseFill { height:100%; width:0%; background:linear-gradient(90deg,#ff9f43,#ee5253); transition:width .2s; }
+  #warn { position:absolute; top:22%; width:100%; text-align:center; color:#ff6b6b; font-size:30px; font-weight:900;
+          text-shadow:0 0 18px #f00, 0 2px 4px #000; display:none; animation:blink .5s infinite alternate; }
+  @keyframes blink { from{opacity:1;} to{opacity:.4;} }
+
+  /* police light vignette */
+  #sirenL,#sirenR { position:absolute; top:0; bottom:0; width:70px; opacity:0; transition:opacity .3s; pointer-events:none; }
+  #sirenL { left:0; background:linear-gradient(90deg,rgba(255,0,0,.55),transparent); }
+  #sirenR { right:0; background:linear-gradient(-90deg,rgba(0,80,255,.55),transparent); }
+
+  /* ---------- touch buttons ---------- */
+  #touchBtns { position:fixed; inset:auto 0 0 0; display:none; justify-content:space-between; padding:0 14px 26px; z-index:6; pointer-events:none; }
+  .tbtn { pointer-events:auto; width:74px; height:74px; border-radius:50%; border:2px solid rgba(255,255,255,.5);
+          background:rgba(255,255,255,.14); color:#fff; font-size:30px; backdrop-filter:blur(4px); }
+  .tbtn:active { background:rgba(255,255,255,.35); }
+  #btnColL { display:flex; gap:12px; } #btnColR { display:flex; gap:12px; }
+
+  /* ---------- overlays ---------- */
+  .overlay { position:fixed; inset:0; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center;
+             background:radial-gradient(ellipse at center, rgba(10,16,34,.88), rgba(4,6,14,.96)); color:#fff; text-align:center; padding:24px; }
+  .overlay h1 { font-size:42px; font-weight:900; letter-spacing:1px;
+                background:linear-gradient(180deg,#ffe259,#ffa751); -webkit-background-clip:text; background-clip:text; color:transparent;
+                text-shadow:0 4px 24px rgba(255,180,60,.25); margin-bottom:6px; }
+  .overlay h2 { font-size:20px; color:#9fb3ff; font-weight:600; margin-bottom:14px; }
+  .overlay p { font-size:16px; line-height:1.65; color:#cdd6f4; max-width:520px; margin-bottom:8px; }
+  .bigbtn { pointer-events:auto; margin-top:18px; padding:16px 54px; font-size:22px; font-weight:800; color:#fff;
+            background:linear-gradient(180deg,#2ecc71,#27ae60); border:none; border-radius:16px; cursor:pointer;
+            box-shadow:0 6px 0 #1e8449, 0 10px 24px rgba(0,0,0,.5); }
+  .bigbtn:active { transform:translateY(4px); box-shadow:0 2px 0 #1e8449; }
+  .ghostbtn { margin-top:12px; padding:12px 34px; font-size:16px; color:#cdd6f4; background:rgba(255,255,255,.08);
+              border:1px solid rgba(255,255,255,.25); border-radius:12px; cursor:pointer; }
+  #opening .emoji { font-size:74px; margin-bottom:10px; animation:bounce 1.2s infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-14px);} }
+  #detention { display:none; } #gameover { display:none; }
+  #detCard { font-size:24px; line-height:1.7; max-width:560px; background:rgba(255,255,255,.06);
+             border:1px solid rgba(255,255,255,.2); border-radius:16px; padding:28px; }
+  #goScore { font-size:30px; font-weight:800; color:#ffd94d; margin:10px 0; }
+  .ctrlHint { margin-top:16px; font-size:14px; color:#8b93b8; }
+  kbd { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius:6px; padding:2px 8px; font-size:13px; }
+</style>
+</head>
+<body>
+<div id="game"></div>
+
+<div id="hud">
+  <div id="score">Score: 0</div>
+  <div id="coins">🪙 0</div>
+  <div id="chaseWrap"><div id="chaseLabel">🚔 POLICE</div><div id="chaseBar"><div id="chaseFill"></div></div></div>
+  <div id="warn"></div>
+  <div id="sirenL"></div><div id="sirenR"></div>
+</div>
+
+<div id="touchBtns">
+  <div id="btnColL">
+    <button class="tbtn" id="bLeft">◀</button>
+    <button class="tbtn" id="bRight">▶</button>
+  </div>
+  <div id="btnColR">
+    <button class="tbtn" id="bDown">⬇</button>
+    <button class="tbtn" id="bUp">⬆</button>
+  </div>
+</div>
+
+<div class="overlay" id="opening">
+  <div class="emoji">🛺💨</div>
+  <h1>JANTAR MANTAR RUN</h1>
+  <h2>— Delhi Chase —</h2>
+  <p><i>"Jai Hind! Inquilab Zindabad!"</i> 🎙️<br><br>
+  Dilli ki sadkon par daudo! Barricade ko <b>jump</b> karo, banner ke neeche se <b>slide</b> karo,
+  gaadiyon se <b>bacho</b> aur 🪙 coins batoro.<br>
+  Police tumhare peeche hai — thokar khaoge to pakde jaoge! 🚔</p>
+  <button class="bigbtn" id="startBtn">▶ DAUD LAGAO!</button>
+  <div class="ctrlHint">📱 Swipe: <kbd>◀ ▶</kbd> lane &nbsp; <kbd>⬆</kbd> jump &nbsp; <kbd>⬇</kbd> slide<br>
+  🖥️ Keys: <kbd>A</kbd>/<kbd>D</kbd> <kbd>Space</kbd>/<kbd>W</kbd> <kbd>S</kbd></div>
+</div>
+
+<div class="overlay" id="detention">
+  <div id="detCard">🚔 Pakde gaye!</div>
+</div>
+
+<div class="overlay" id="gameover">
+  <div class="emoji">🚔</div>
+  <h1>PAKDE GAYE!</h1>
+  <div id="goScore"></div>
+  <p id="goBest"></p>
+  <button class="bigbtn" id="restartBtn">↻ RESTART</button>
+  <button class="ghostbtn" id="menuBtn">🏠 Menu</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   JANTAR MANTAR RUN — Delhi Chase (browser prototype)
+   Same game design as the Unity project in Assets/.
+   ============================================================ */
+
+// ---------- tiny audio (procedural, no assets) ----------
+const AudioSys = {
+  ctx:null,
+  init(){ if(!this.ctx){ try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } },
+  beep(freq,dur,type='sine',vol=0.18,slide=0){
+    if(!this.ctx) return;
+    const t=this.ctx.currentTime, o=this.ctx.createOscillator(), g=this.ctx.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,t);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,freq+slide),t+dur);
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t+dur);
+  },
+  sfx(n){
+    if(!this.ctx) return;
+    if(n==='jump') this.beep(300,0.18,'square',0.12,300);
+    else if(n==='slide') this.beep(200,0.2,'sawtooth',0.1,-120);
+    else if(n==='coin') { this.beep(900,0.09,'sine',0.15); setTimeout(()=>this.beep(1350,0.12,'sine',0.15),70); }
+    else if(n==='hit') this.beep(140,0.3,'sawtooth',0.2,-80);
+    else if(n==='dodge') this.beep(600,0.1,'sine',0.1,200);
+    else if(n==='siren'){ this.beep(700,0.4,'sawtooth',0.08,300); setTimeout(()=>this.beep(950,0.4,'sawtooth',0.08,-300),400); }
+    else if(n==='caught'){ this.beep(400,0.8,'sawtooth',0.15,-250); }
+  }
+};
+
+// ---------- game state ----------
+const LANES=[-2.2,0,2.2];
+const S = {
+  state:'opening', // opening | playing | caught | detention | gameover
+  speed:10, baseSpeed:10, maxSpeed:24, ramp:0.18,
+  dist:0, coins:0, pressure:0,
+  best: parseInt(localStorage.getItem('jmr_best')||'0',10),
+};
+const score=()=>Math.floor(S.dist)+S.coins*10;
+
+// ---------- three.js setup ----------
+const container=document.getElementById('game');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+container.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x87b5e8);
+scene.fog=new THREE.Fog(0x87b5e8,40,110);
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,300);
+camera.position.set(0,4.6,7.6);
+
+scene.add(new THREE.HemisphereLight(0xbfd9ff,0x3a4a3a,0.9));
+const sun=new THREE.DirectionalLight(0xfff2dd,1.1);
+sun.position.set(-8,14,6); scene.add(sun);
+
+addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+
+// ---------- material cache ----------
+const matCache={};
+function MAT(color){
+  const k=color.toString(16);
+  if(!matCache[k]) matCache[k]=new THREE.MeshLambertMaterial({color});
+  return matCache[k];
+}
+function box(w,h,d,color,x=0,y=0,z=0,parent=scene){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),MAT(color));
+  m.position.set(x,y,z); parent.add(m); return m;
+}
+function cyl(rt,rb,h,color,x=0,y=0,z=0,parent=scene,seg=10){
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),MAT(color));
+  m.position.set(x,y,z); parent.add(m); return m;
+}
+function sph(r,color,x=0,y=0,z=0,parent=scene){
+  const m=new THREE.Mesh(new THREE.SphereGeometry(r,12,10),MAT(color));
+  m.position.set(x,y,z); parent.add(m); return m;
+}
+const BUILDING_COLORS=[0xd9b98c,0xece7db,0xc79a6b,0xe0cba0];
+
+// ---------- road segments (recycled pool) ----------
+const SEG_LEN=30, SEG_N=8;
+const segments=[];
+let nextSegZ=20;
+function buildSegment(){
+  const g=new THREE.Group();
+  // asphalt
+  box(9,0.1,SEG_LEN,0x2a2a2e,0,-0.05,0,g);
+  // dashes
+  for(let z=-SEG_LEN/2+2; z<SEG_LEN/2; z+=4){
+    box(0.12,0.02,1.6,0xffffff,-1.1,0.01,z,g);
+    box(0.12,0.02,1.6,0xffffff, 1.1,0.01,z,g);
+  }
+  // footpaths
+  box(3,0.2,SEG_LEN,0x73706a,-6,0.05,0,g);
+  box(3,0.2,SEG_LEN,0x73706a, 6,0.05,0,g);
+  // buildings + trees + lamps
+  for(const side of [-1,1]){
+    const xb=side*10;
+    for(let z=-SEG_LEN/2+4; z<SEG_LEN/2; z+=9){
+      if(Math.random()<0.25){
+        const t=new THREE.Group(); t.position.set(xb+(Math.random()*2-1),0,z+(Math.random()*4-2)); g.add(t);
+        cyl(0.2,0.25,2.4,0x5a3d22,0,1.2,0,t);
+        sph(1.5,0x2d7a2d,0,3.2,0,t);
+        continue;
+      }
+      const w=5+Math.random()*3, h=7+Math.random()*13, d=5+Math.random()*3;
+      const bcol=BUILDING_COLORS[(Math.random()*BUILDING_COLORS.length)|0];
+      const bx=xb+(Math.random()*3-1.5), bz=z;
+      box(w,h,d,bcol,bx,h/2,bz,g);
+      const floors=Math.max(1,Math.floor(h/3));
+      for(let f=0; f<floors; f++){
+        const wy=2+f*3; if(wy>h-1) break;
+        box(w*0.85,1.1,0.1,0x1e2836,bx,wy,bz+(side>0?-d/2-0.03:d/2+0.03),g);
+      }
+      box(w*1.04,0.5,d*1.04,0xbf5a33,bx,h+0.25,bz,g); // trim
+    }
+    for(let z=-SEG_LEN/2+6; z<SEG_LEN/2; z+=15){
+      const lx=side*5.3;
+      cyl(0.12,0.14,6,0x404048,lx,3,z,g);
+      box(2.2,0.18,0.18,0x404048,lx+side*1,5.9,z,g);
+      box(0.7,0.25,0.4,0xfff2b0,lx+side*2,5.75,z,g);
+    }
+  }
+  // occasional monument (Jantar Mantar vibe)
+  if(Math.random()<0.3){
+    const mx=Math.random()<0.5?-14:14, mz=(Math.random()*20-10);
+    box(4,2,4,0xb84a36,mx,1,mz,g);
+    box(1.6,8,1.6,0xc4563d,mx,5,mz,g);
+    sph(1.1,0xd96648,mx,9.6,mz,g);
+  }
+  g.position.z=nextSegZ-SEG_LEN/2;
+  nextSegZ-=SEG_LEN;
+  scene.add(g); segments.push(g);
+}
+for(let i=0;i<SEG_N;i++) buildSegment();
+
+// ---------- player ----------
+const player=new THREE.Group(); scene.add(player);
+const pBody=box(0.9,1.4,0.9,0x2673d9,0,1.0,0,player);       // torso
+const pHead=sph(0.34,0xf2c19b,0,2.05,0,player);              // head
+box(0.7,0.22,0.5,0xf28c1a,0,1.72,-0.18,player);              // scarf
+box(0.28,0.9,0.28,0x1a4fa0,-0.6,0.9,0,player);               // legs
+box(0.28,0.9,0.28,0x1a4fa0, 0.6,0.9,0,player);
+const P={ lane:1, x:0, y:0, vy:0, grounded:true, slideT:0, stumbleT:0, phase:0,
+          get high(){ return !this.grounded && this.y>1.0; },
+          get sliding(){ return this.slideT>0; } };
+
+// ---------- police jeep (surprise events) ----------
+const jeep=new THREE.Group(); jeep.visible=false; scene.add(jeep);
+box(2.0,0.9,4.2,0xffffff,0,0.75,0,jeep);
+box(1.7,0.7,2.0,0x1e2c4c,0,1.5,0.2,jeep);
+box(2.02,0.3,4.22,0x1a40b0,0,0.75,0,jeep);
+const jLightR=box(0.5,0.25,0.4,0xff0000,-0.4,2.0,0.2,jeep);
+const jLightB=box(0.5,0.25,0.4,0x0044ff, 0.4,2.0,0.2,jeep);
+let jeepActive=false, jeepT=0;
+
+// ---------- detention van ----------
+const van=new THREE.Group(); van.visible=false; scene.add(van);
+box(2.4,2.0,5.5,0xffffff,0,1.2,0,van);
+box(2.44,0.5,5.54,0x1a40b0,0,1.2,0,van);
+box(1.0,0.3,0.5,0xff0000,0,2.45,0,van);
+
+// ---------- pools: obstacles & coins ----------
+function makeBarricade(){
+  const g=new THREE.Group();
+  box(0.25,0.3,0.9,0x4c4c52,-0.8,0.15,0,g); box(0.25,0.3,0.9,0x4c4c52,0.8,0.15,0,g);
+  for(let i=0;i<3;i++) box(2.0,0.2,0.12,i%2?0xffffff:0xe6d933,0,0.55+i*0.28,0,g);
+  return {g,kind:'barricade',w:2.0,h:1.2};
+}
+function makeCar(){
+  const g=new THREE.Group();
+  const bc=[0xd94f3d,0x3d7bd9,0x53c06a,0xe6b93d][(Math.random()*4)|0];
+  box(1.9,0.9,3.6,bc,0,0.7,0,g);
+  box(1.6,0.7,1.8,0x24344c,0,1.45,-0.2,g);
+  for(const [wx,wz] of [[-0.95,-1.2],[0.95,-1.2],[-0.95,1.2],[0.95,1.2]]){
+    const w=cyl(0.35,0.35,0.3,0x111111,wx,0.35,wz,g); w.rotation.z=Math.PI/2;
+  }
+  box(0.35,0.25,0.1,0xfff2b0,-0.6,0.8,-1.85,g); box(0.35,0.25,0.1,0xfff2b0,0.6,0.8,-1.85,g);
+  return {g,kind:'car',w:1.9,h:1.8};
+}
+function makeOverhead(){
+  const g=new THREE.Group();
+  box(0.25,2.2,0.25,0x5a5a60,-1.05,1.1,0,g); box(0.25,2.2,0.25,0x5a5a60,1.05,1.1,0,g);
+  box(2.35,0.7,0.15,0xd94026,0,1.75,0,g);
+  return {g,kind:'overhead',w:2.35,h:1.1,yOff:1.05};
+}
+const obstacles=[];
+function spawnObstacle(kind,lane,z,oncoming=0){
+  const o=kind==='barricade'?makeBarricade():kind==='car'?makeCar():makeOverhead();
+  o.g.visible=true; o.g.position.set(LANES[lane],0,z);
+  o.lane=lane; o.oncoming=oncoming; o.hit=false;
+  scene.add(o.g); obstacles.push(o);
+}
+const coins=[];
+function spawnCoin(lane,z,y=1.0){
+  const g=new THREE.Group();
+  const c=cyl(0.35,0.35,0.12,0xffd94d,0,0,0,g); c.rotation.x=Math.PI/2;
+  const rim=cyl(0.39,0.39,0.08,0xd9a419,0,0,0,g); rim.rotation.x=Math.PI/2;
+  g.position.set(LANES[lane],y,z); scene.add(g);
+  coins.push({g,taken:false});
+}
+
+// ---------- spawners ----------
+let obsTimer=1.2, coinTimer=1.0, surpriseTimer=24;
+function spawnRow(){
+  const z=-70;
+  const blockCount=Math.random()<0.45?1:2;
+  const lanes=[0,1,2].sort(()=>Math.random()-0.5);
+  for(let i=0;i<blockCount;i++){
+    const r=Math.random();
+    const kind=r<0.4?'barricade':r<0.75?'car':'overhead';
+    const oncoming=(kind==='car'&&Math.random()<0.35)?6+Math.random()*4:0;
+    spawnObstacle(kind,lanes[i],z+(Math.random()*4-2),oncoming);
+  }
+}
+function spawnCoinArc(){
+  const lane=(Math.random()*3)|0, z=-60, n=5, arc=Math.random()<0.5;
+  for(let i=0;i<n;i++){
+    const y=arc?1.0+Math.sin(i/(n-1)*Math.PI)*1.6:1.0;
+    spawnCoin(lane,z-i*2.2,y);
+  }
+}
+function surprise(){
+  addPressure(10);
+  flashWarn('⚠️ Police aage se aa rahi hai!');
+  AudioSys.sfx('siren');
+  const gap=(Math.random()*3)|0, z=-70;
+  for(let l=0;l<3;l++){
+    if(l===gap) continue;
+    spawnObstacle(Math.random()<0.5?'barricade':'car',l,z);
+  }
+  // police jeep charges down the gap lane then veers off
+  jeepActive=true; jeepT=0;
+  jeep.visible=true;
+  jeep.position.set(LANES[gap],0,-75);
+  jeep.userData.gap=gap;
+}
+
+// ---------- input ----------
+function doLeft(){ if(S.state==='playing'&&P.lane>0){P.lane--; AudioSys.sfx('dodge');} }
+function doRight(){ if(S.state==='playing'&&P.lane<2){P.lane++; AudioSys.sfx('dodge');} }
+function doJump(){ if(S.state==='playing'&&P.grounded){P.grounded=false;P.vy=8.5;P.slideT=0;AudioSys.sfx('jump');} }
+function doSlide(){ if(S.state==='playing'){ if(!P.grounded)P.vy=Math.min(P.vy,-14); P.slideT=0.75; AudioSys.sfx('slide');} }
+addEventListener('keydown',e=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA')doLeft();
+  else if(e.code==='ArrowRight'||e.code==='KeyD')doRight();
+  else if(e.code==='ArrowUp'||e.code==='KeyW'||e.code==='Space'){doJump();e.preventDefault();}
+  else if(e.code==='ArrowDown'||e.code==='KeyS')doSlide();
+});
+let tS=null,tT=0;
+addEventListener('touchstart',e=>{ AudioSys.init(); const t=e.changedTouches[0]; tS={x:t.clientX,y:t.clientY}; tT=performance.now(); },{passive:true});
+addEventListener('touchend',e=>{
+  if(!tS)return;
+  const t=e.changedTouches[0], dx=t.clientX-tS.x, dy=t.clientY-tS.y;
+  if(Math.hypot(dx,dy)>50){
+    if(Math.abs(dx)>Math.abs(dy)) dx>0?doRight():doLeft();
+    else dy>0?doSlide():doJump();
+  }
+  tS=null;
+},{passive:true});
+addEventListener('mousedown',e=>{ AudioSys.init(); });
+const bind=(id,fn)=>{const el=document.getElementById(id);
+  el.addEventListener('touchstart',e=>{e.preventDefault();AudioSys.init();fn();},{passive:false});
+  el.addEventListener('mousedown',e=>{e.preventDefault();fn();}); };
+bind('bLeft',doLeft); bind('bRight',doRight); bind('bUp',doJump); bind('bDown',doSlide);
+
+// ---------- UI helpers ----------
+const $=id=>document.getElementById(id);
+function flashWarn(msg,ms=2500){
+  const w=$('warn'); w.textContent=msg; w.style.display='block';
+  clearTimeout(w._t); w._t=setTimeout(()=>w.style.display='none',ms);
+}
+function addPressure(a){
+  if(S.state!=='playing')return;
+  S.pressure=Math.min(100,S.pressure+a);
+  if(S.pressure>=100) onCaught();
+}
+
+// ---------- flow ----------
+$('startBtn').onclick=()=>{ AudioSys.init(); startRun(); };
+$('restartBtn').onclick=()=>{ restart(); };
+$('menuBtn').onclick=()=>{ location.reload(); };
+function startRun(){
+  S.state='playing'; S.speed=S.baseSpeed; S.dist=0; S.coins=0; S.pressure=0;
+  P.lane=1;P.x=0;P.y=0;P.vy=0;P.grounded=true;P.slideT=0;P.stumbleT=0;
+  for(const o of obstacles)scene.remove(o.g); obstacles.length=0;
+  for(const c of coins)scene.remove(c.g); coins.length=0;
+  jeep.visible=false; jeepActive=false; van.visible=false;
+  $('opening').style.display='none';
+  $('detention').style.display='none';
+  $('gameover').style.display='none';
+  $('hud').style.display='block';
+  if('ontouchstart' in window) $('touchBtns').style.display='flex';
+  AudioSys.sfx('siren');
+  flashWarn('🏃 Daudo! Police peeche hai!',2200);
+}
+function restart(){ startRun(); }
+
+function onCaught(){
+  if(S.state!=='playing')return;
+  S.state='caught'; AudioSys.sfx('caught');
+  setTimeout(detention,900);
+}
+function detention(){
+  if(S.state!=='caught')return;
+  S.state='detention';
+  $('detention').style.display='flex';
+  van.visible=true; van.position.set(-20,0,-14);
+  const cards=[
+    '🚔 <b>Pakde gaye!</b><br><br>Police ne gher liya...',
+    '🚐 Police van aa rahi hai.<br><br>(Chinta mat karo — ye sirf khel hai!)',
+    '👮 <i>"Chalo beta, thane chalte hain."</i><br><br>Samajhdaari isi me hai — khel me hi daudo! 😄'
+  ];
+  let i=0;
+  const card=$('detCard');
+  card.innerHTML=cards[0]; AudioSys.sfx('siren');
+  const iv=setInterval(()=>{
+    i++;
+    if(i>=cards.length){ clearInterval(iv); showGameOver(); return; }
+    card.innerHTML=cards[i]; AudioSys.sfx('siren');
+  },1900);
+}
+function showGameOver(){
+  S.state='gameover';
+  $('detention').style.display='none';
+  const sc=score();
+  if(sc>S.best){ S.best=sc; localStorage.setItem('jmr_best',String(sc)); }
+  $('goScore').textContent=`Score: ${sc}   🪙 ${S.coins}`;
+  $('goBest').textContent=`🏆 Best: ${S.best}`;
+  $('gameover').style.display='flex';
+  $('touchBtns').style.display='none';
+}
+
+// ---------- collision ----------
+function checkCollisions(){
+  for(const o of obstacles){
+    if(o.hit)continue;
+    const dz=o.g.position.z; // player at z=0
+    if(Math.abs(dz)<1.1 && Math.abs(o.g.position.x-P.x)<(o.w/2+0.35)){
+      let pass=false;
+      if(o.kind==='barricade') pass=P.high;
+      else if(o.kind==='overhead') pass=P.sliding;
+      // cars: never pass
+      o.hit=true;
+      if(pass){ AudioSys.sfx('dodge'); }
+      else{
+        P.stumbleT=0.6; AudioSys.sfx('hit');
+        addPressure(25);
+        flashWarn('💥 Thokar! Police nazdeek!',1200);
+      }
+      scene.remove(o.g);
+    }
+  }
+  for(const c of coins){
+    if(c.taken)continue;
+    const dx=c.g.position.x-P.x, dy=c.g.position.y-(P.y+1.0), dz=c.g.position.z;
+    if(Math.abs(dz)<1.0&&Math.hypot(dx,dy)<1.0){
+      c.taken=true; S.coins++; AudioSys.sfx('coin'); scene.remove(c.g);
+    }
+  }
+}
+
+// ---------- main loop ----------
+let last=performance.now(), sirenT=0;
+function loop(now){
+  requestAnimationFrame(loop);
+  let dt=Math.min(0.05,(now-last)/1000); last=now;
+
+  if(S.state==='playing'){
+    // speed ramp + distance
+    S.speed=Math.min(S.maxSpeed,S.speed+S.ramp*dt);
+    S.dist+=S.speed*dt;
+    // pressure decay
+    S.pressure=Math.max(0,S.pressure-3*dt);
+
+    // player physics
+    const tx=LANES[P.lane];
+    P.x+=(tx-P.x)*Math.min(1,14*dt);
+    if(!P.grounded){
+      P.vy+=-24*dt; P.y+=P.vy*dt;
+      if(P.y<=0){P.y=0;P.grounded=true;P.vy=0;}
+    }
+    if(P.slideT>0)P.slideT-=dt;
+    if(P.stumbleT>0)P.stumbleT-=dt;
+    const spd=S.speed*(P.stumbleT>0?0.45:1);
+    P.phase+=dt*spd*1.6;
+
+    // world scroll
+    for(const s of segments){
+      s.position.z+=spd*dt;
+      if(s.position.z-SEG_LEN/2>25){ s.position.z-=SEG_LEN*SEG_N; }
+    }
+    for(const o of obstacles){
+      o.g.position.z+=(spd+o.oncoming)*dt;
+      if(o.g.position.z>12){ scene.remove(o.g); o.dead=true; }
+    }
+    for(let i=obstacles.length-1;i>=0;i--) if(obstacles[i].dead)obstacles.splice(i,1);
+    for(const c of coins){
+      c.g.position.z+=spd*dt; c.g.rotation.y+=3*dt;
+      if(c.g.position.z>12){ scene.remove(c.g); c.dead=true; }
+    }
+    for(let i=coins.length-1;i>=0;i--) if(coins[i].dead)coins.splice(i,1);
+
+    // spawners
+    obsTimer-=dt;
+    if(obsTimer<=0){ spawnRow(); const t=(S.speed-10)/14; obsTimer=(1.6+(0.7-1.6)*t)*(0.85+Math.random()*0.35); }
+    coinTimer-=dt;
+    if(coinTimer<=0){ spawnCoinArc(); coinTimer=2.2*(0.8+Math.random()*0.5); }
+    surpriseTimer-=dt;
+    if(surpriseTimer<=0){ surprise(); surpriseTimer=22+Math.random()*16; }
+
+    checkCollisions();
+
+    // HUD
+    $('score').textContent='Score: '+score();
+    $('coins').textContent='🪙 '+S.coins;
+    $('chaseFill').style.width=S.pressure+'%';
+    sirenT+=dt*10;
+    const on=Math.floor(sirenT)%2===0, inten=S.pressure/100;
+    $('sirenL').style.opacity=on?0.25+inten*0.6:0;
+    $('sirenR').style.opacity=!on?0.25+inten*0.6:0;
+  }
+
+  // police jeep surprise run: charges down the gap lane, then swerves off (cinematic, no hit)
+  if(jeepActive){
+    jeepT+=dt;
+    jeep.position.z+=(S.speed+14)*dt;
+    if(jeep.position.z>-20){
+      // swerve aside
+      const side=jeep.userData.gap===0?1:-1;
+      jeep.position.x+=side*10*dt;
+    }
+    jLightR.material=MAT(Math.floor(now/150)%2?0xff0000:0x550000);
+    jLightB.material=MAT(Math.floor(now/150)%2?0x550000:0x0044ff);
+    if(jeep.position.z>-6||jeepT>6){ jeepActive=false; jeep.visible=false; }
+  }
+  // detention van drive-by
+  if(S.state==='detention'&&van.visible){
+    van.position.x+=8*dt;
+    if(van.position.x>22)van.visible=false;
+  }
+
+  // player visuals
+  player.position.set(P.x,P.y,0);
+  const bob=P.grounded?Math.abs(Math.sin(P.phase))*0.08:0;
+  pBody.position.y=1.0+bob; pHead.position.y=2.05+bob;
+  player.rotation.z=-Math.min(0.5,Math.max(-0.5,(tx-P.x)*0.4));
+  if(P.sliding)player.scale.set(1.25,0.55,1.25);
+  else if(!P.grounded)player.scale.set(0.92,1.1,0.92);
+  else player.scale.set(1,1,1);
+  if(P.stumbleT>0&&Math.floor(now/80)%2===0)pBody.material=MAT(0xff0000);
+  else pBody.material=MAT(0x2673d9);
+
+  // camera
+  camera.position.x+=(P.x*0.45-camera.position.x)*Math.min(1,5*dt);
+  camera.position.y=4.6+P.y*0.25;
+  camera.lookAt(P.x*0.6,1.4+P.y*0.3,-6);
+  const fovT=(S.speed-10)/14;
+  camera.fov=60+fovT*8; camera.updateProjectionMatrix();
+
+  renderer.render(scene,camera);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
