@@ -29,3 +29,12 @@
 3. Improve looping world sections so Delhi scenery and protest/traffic details continue as the runner advances.
 4. Decide how to render PINOC splat assets alongside performant collision/gameplay geometry; benchmark Android.
 5. Add the user's reference-video details and meme audio when supplied; then build/test a real mobile package.
+
+
+## 2026-10-11 — 3D environment blockout milestone
+- Created the hosted Higgsfield 3D Jutsu project: https://higgsfield.ai/3d-jutsu/a500419b-8e26-4837-bba6-f1911675b305
+- Committed the first editable scene at revision 2 with 121 reported objects: ground plate, protest plaza, stylised Jantar Mantar-inspired forms, Sansad Marg-inspired road and markings, sidewalks, barricade line with central gap, background city blocks, tree proxies, blank placards, delivery camera and working lights.
+- Generated a low-resolution preview render (650 × 422). The render job succeeded; direct visual inspection of the temporary signed render URL was unavailable, so visual acceptance remains open for review in the 3D Jutsu scene viewer.
+- Added reproducible procedural source at `scripts/blender/build_delhi_environment_blockout.py` and milestone notes at `Documentation/ENVIRONMENT_BLOCKOUT.md`.
+- The hosted project retains its own .blend/.glb revision artifacts. The GitHub commit stores the source script and documentation; it does not claim the binary exports are already in the repository.
+- Next: inspect the scene from the viewer, correct the biggest framing/proportion issues, then refine architecture and street details before adding final characters/gameplay.
