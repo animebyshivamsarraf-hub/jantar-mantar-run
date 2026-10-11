@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'area-01-preview.html'
+      - 'public/**'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 permissions:
