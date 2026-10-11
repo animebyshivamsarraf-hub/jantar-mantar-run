@@ -43,7 +43,7 @@ tent(-7,-21,'#b4a17c');tent(7,-34,'#b9b2a0');tent(-7,-47,'#8f9a87');
 for(let z=-4;z>-72;z-=7)cube(mat('#e7d8a4'),0,.015,z,.12,.025,2.8);
 const player=new T.Group();scene.add(player);cube(mat('#263a48'),0,1,0,.6,.9,.35,player);cube(mat('#25282b'),0,.3,0,.5,.5,.32,player);const head=new T.Mesh(new T.SphereGeometry(.22,12,10),mat('#9b6e50'));head.position.y=1.65;player.add(head);
 const s={x:0,z:3,active:false};function move(dx,dz){if(!s.active)return;s.x=T.MathUtils.clamp(s.x+dx,-4.5,4.5);s.z=T.MathUtils.clamp(s.z+dz,-65,3)}
-function reset(){s.x=0;s.z=3;player.position.set(0,0,3)}
+function reset(){s.x=0;s.z=3;player.position.set(0,0,3);camera.position.set(0,4,11);camera.lookAt(0,1,-2)}
 document.querySelector('#left').onclick=()=>move(-1,0);document.querySelector('#right').onclick=()=>move(1,0);document.querySelector('#forward').onclick=()=>move(0,-2);document.querySelector('#reset').onclick=reset;document.querySelector('#start').onclick=()=>{s.active=true;document.querySelector('#intro').classList.add('hidden');document.querySelector('#status').textContent='TEST RUNNING'};
 addEventListener('keydown',e=>{if(['ArrowLeft','a','A'].includes(e.key))move(-.7,0);if(['ArrowRight','d','D'].includes(e.key))move(.7,0);if(['ArrowUp','w','W'].includes(e.key))move(0,-1.5);if(['ArrowDown','s','S'].includes(e.key))move(0,1.5);if(e.key==='r'||e.key==='R')reset()});
 let touch=null;canvas.addEventListener('pointerdown',e=>touch={x:e.clientX,y:e.clientY});canvas.addEventListener('pointerup',e=>{if(!touch)return;const dx=e.clientX-touch.x,dy=e.clientY-touch.y;if(Math.abs(dx)>25||Math.abs(dy)>25){Math.abs(dx)>Math.abs(dy)?move(dx>0?1:-1,0):move(0,dy>0?1.5:-1.5)}touch=null});
