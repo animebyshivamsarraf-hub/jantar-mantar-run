@@ -53,7 +53,7 @@ const gateCtx=gateCanvas.getContext('2d');gateCtx.fillStyle='#8f3027';gateCtx.fi
 gateCtx.fillStyle='#fff3d7';gateCtx.font='bold 54px Arial';gateCtx.textAlign='center';gateCtx.fillText('JANTAR MANTAR PROTEST SITE',512,80);
 const gateTexture=new THREE.CanvasTexture(gateCanvas);
 const gateLabel=new THREE.Mesh(new THREE.PlaneGeometry(8.5,1.06),new THREE.MeshBasicMaterial({map:gateTexture,side:THREE.DoubleSide}));
-gateLabel.position.set(0,5.15,-2.03);entryGate.add(gateLabel);
+gateLabel.position.set(0,5.15,-1.57);entryGate.add(gateLabel);
 // AREA 01 — Jantar Mantar protest-site entry props (first focused build).
 // These are a procedural blockout, not a surveyed one-to-one reconstruction.
 const area01=new THREE.Group();scene.add(area01);
@@ -111,7 +111,7 @@ function locationBoard(x,z,title,subtitle){
  cx.fillStyle='#fff8df';cx.textAlign='center';cx.font='bold 43px Arial';cx.fillText(title,256,76);
  cx.font='bold 29px Arial';cx.fillText(subtitle,256,125);
  const tex=new THREE.CanvasTexture(c);const face=new THREE.Mesh(new THREE.PlaneGeometry(2.08,.74),new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide}));
- face.position.set(0,2.05,-.112);g.add(face);
+ face.position.set(0,2.05,.105);g.add(face);
 }
 locationBoard(-5.6,-10,'JANTAR MANTAR','PROTEST SITE / प्रवेश');
 locationBoard(5.5,-42,'SANSAD MARG','STRAIGHT AHEAD / आगे');
