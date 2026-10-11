@@ -1,0 +1,80 @@
+name: Stage 1 isolated browser tests
+
+on:
+  push:
+    branches: [scratch/new-game-v1]
+    paths:
+      - 'stage-01-foundation.html'
+      - '.github/workflows/stage-01-preview-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout scratch branch
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install browser test tools
+        run: |
+          npm init -y
+          npm install --save-dev @playwright/test
+          npx playwright install --with-deps chromium
+      - name: Create local static server and smoke tests
+        run: |
+          cat > server.cjs <<'EOF'
+          const http = require('http');
+          const fs = require('fs');
+          const path = require('path');
+          http.createServer((req, res) => {
+            const pathname = decodeURIComponent((req.url || '/').split('?')[0]);
+            const file = pathname === '/' ? 'stage-01-foundation.html' : pathname.slice(1);
+            if (file !== 'stage-01-foundation.html') { res.writeHead(404); res.end('Not found'); return; }
+            res.writeHead(200, {'content-type':'text/html; charset=utf-8', 'cache-control':'no-store'});
+            fs.createReadStream(path.join(process.cwd(), file)).pipe(res);
+          }).listen(4173, '127.0.0.1');
+          EOF
+          cat > stage01.spec.cjs <<'EOF'
+          const { test, expect } = require('@playwright/test');
+          test('renders the foundation scene and core controls', async ({ page }) => {
+            const errors = [];
+            page.on('pageerror', e => errors.push(e.message));
+            await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle', timeout: 60000 });
+            await expect(page.getByRole('heading', { name: /Stage 1: Stable foundation/i })).toBeVisible();
+            await page.getByRole('button', { name: 'START TEST' }).click();
+            await expect(page.locator('#status')).toHaveText('TEST RUNNING');
+            await page.getByRole('button', { name: 'Move left' }).click();
+            await page.keyboard.press('ArrowRight');
+            await page.keyboard.press('r');
+            await page.setViewportSize({ width: 390, height: 844 });
+            await page.waitForTimeout(800);
+            const canvas = page.locator('canvas');
+            await expect(canvas).toBeVisible();
+            const size = await canvas.boundingBox();
+            expect(size.width).toBeGreaterThan(300);
+            expect(size.height).toBeGreaterThan(700);
+            expect(errors, errors.join('\n')).toEqual([]);
+          });
+          test('shows a readable error when WebGL is unavailable', async ({ page }) => {
+            await page.addInitScript(() => {
+              const original = HTMLCanvasElement.prototype.getContext;
+              HTMLCanvasElement.prototype.getContext = function(type, ...args) {
+                if (type === 'webgl2' || type === 'webgl' || type === 'experimental-webgl') return null;
+                return original.call(this, type, ...args);
+              };
+            });
+            await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded' });
+            await expect(page.locator('#error')).toContainText(/WebGL could not start|Three\.js failed/i, { timeout: 15000 });
+          });
+          EOF
+      - name: Run Chromium smoke tests
+        run: |
+          node server.cjs &
+          npx playwright test --config=/dev/null --reporter=line stage01.spec.cjs
