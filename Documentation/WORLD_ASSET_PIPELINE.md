@@ -27,21 +27,28 @@ The following asset IDs were found in the connected PINOC library. Signed downlo
 | Sharp clear endless protest world | `6aadf020-d370-4542-9f2a-74503946edfd` | Alternate long corridor reference; normalized |
 | Realistic protest site v2 | `afe93872-0a38-4c79-831f-9062fac432de` | Plaza-to-road visual reference; normalized |
 | Photoreal Delhi protest route master | `b7a4ff75-5735-42f7-86a6-651ea1101b2b` | Wide route reference; normalized |
+| Module B — Sansad Marg connected road | `2824d991-051d-4e44-b7cb-142586d81fa4` | Connected road extension; normalized, identity placement |
+| Module C — observatory landmark reference | `d2691515-bcbb-464d-90f4-2cffc175a256` | Newly generated reference focused on Samrat Yantra, Jai Prakash and Ram Yantra forms; normalized |
 
-| Module B — Sansad Marg connected road | `2824d991-051d-4e44-b7cb-142586d81fa4` | Newly generated; normalized, identity placement |
+## Current 3D scene work
+
+The hosted 3D Jutsu source scene is [JANTAR MANTAR RUN — Delhi Protest Environment Base](https://higgsfield.ai/3d-jutsu/a500419b-8e26-4837-bba6-f1911675b305).
+
+Revision 4 contained the first detail pass: 213 window instances, roadside streetlights, bollards, three temporary tent structures, tree foliage/branches, a Delhi-style bus, a police van, and roadside location boards.
+
+Revision 5 adds procedural, editable landmark-inspired geometry for a Samrat Yantra-style triangular gnomon with steps, a Jai Prakash-style concave bowl with radial/concentric scales, and a Ram Yantra-style circular instrument wall. It also repositions the temporary shelter concept to the route edges, adds twelve roadside bollards, and adjusts the delivery camera/daylight setup. A 640×400 preview render was published as part of the scene operation.
+
+These are reference-guided procedural approximations, not a photogrammetry-accurate or surveyed reconstruction. The generated PINOC Module A/B/C environment files are still separate Gaussian-splat assets and are **not yet integrated into the runtime**. The hosted scene is also not yet a tested Android game build.
 
 ## Assembly order
 
 1. Lock the Module A starting view and verify the Jantar Mantar entrance / protest forecourt silhouette against reliable reference photos.
-2. Finish Module A's separate game-ready road, paving, building and edge-prop meshes.
-3. Add Module B as a connected Sansad Marg road corridor; validate road width, ground height and entry/exit orientation before blending.
-
-## Current 3D scene work
-
-The hosted 3D Jutsu source scene is [JANTAR MANTAR RUN — Delhi Protest Environment Base](https://higgsfield.ai/3d-jutsu/a500419b-8e26-4837-bba6-f1911675b305). Revision 4 adds a first detail pass: 213 shared-mesh window instances, roadside streetlights, bollards, three temporary tent structures, tree foliage/branches, a Delhi-style bus, a police van, and physical roadside location boards. This is still a procedural scene blockout with generated geometry; it is not yet a photogrammetry-accurate Jantar Mantar reconstruction or a tested Android game scene.
-4. Build reusable prop families: metal crowd-control barricades, beige tents, water crates, streetlights, trees, Indian traffic, police van and bus.
-5. Add landmark-specific structures and location boards only where reference material supports their placement.
-6. Integrate assets into the actual game scene and run a real Android performance check. The browser viewer is for quick visual review, not proof of Android performance.
+2. Refine landmark geometry and camera composition using real reference views; avoid symmetrical or generic shapes where the actual instrument form differs.
+3. Finish separate game-ready road, paving, building and edge-prop meshes.
+4. Add Module B as a connected Sansad Marg road corridor; validate road width, ground height and entry/exit orientation before blending.
+5. Treat Module C as a landmark visual reference until a supported durable asset-transfer path is confirmed.
+6. Build reusable prop families: metal crowd-control barricades, beige tents, water crates, streetlights, trees, Indian traffic, police van and bus.
+7. Integrate assets into the actual game scene and run a real Android performance check. The browser viewer is for quick visual review, not proof of Android performance.
 
 ## Accuracy and quality gates
 
