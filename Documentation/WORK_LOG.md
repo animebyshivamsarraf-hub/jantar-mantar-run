@@ -38,3 +38,12 @@
 - Added reproducible procedural source at `scripts/blender/build_delhi_environment_blockout.py` and milestone notes at `Documentation/ENVIRONMENT_BLOCKOUT.md`.
 - The hosted project retains its own .blend/.glb revision artifacts. The GitHub commit stores the source script and documentation; it does not claim the binary exports are already in the repository.
 - Next: inspect the scene from the viewer, correct the biggest framing/proportion issues, then refine architecture and street details before adding final characters/gameplay.
+
+
+## 2026-10-11 — Switch visual target to PINOC photoreal environment
+- User correctly flagged the procedural Blender blockout as insufficiently realistic. Do not treat that blockout as the final look.
+- Generated a new PINOC Gaussian-splat environment: **JANTAR MANTAR RUN — Photoreal Delhi Protest Route (Master Environment)**.
+- PINOC asset ID: `b7a4ff75-5735-42f7-86a6-651ea1101b2b`; task ID: `604915b2-093e-4fcb-a817-f8370f5d9256`; normalised SPZ, identity transform required.
+- Added `Documentation/PINOC_MASTER_ENVIRONMENT.md` with the stable asset ID, prompt intent, and integration requirements.
+- PINOC reports the environment task succeeded. Its signed download URL expires, and the SPZ binary is not yet in this repository. Do not claim it has been committed as a binary.
+- Next: load the PINOC splat in the target renderer and visually compare it with the user-provided references; then align the player route and add separate collision/gameplay proxies and modular road streaming.
