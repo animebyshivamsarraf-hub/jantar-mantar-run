@@ -40,6 +40,19 @@ observatory(-12,-13,1.3);observatory(12,-24,.9);observatory(-12,-44,.8);
 function tree(x,z){cylinder(world,mat(0x6a4a32),x,.8,z,.18,.25,1.6);const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.25,1),leaf);crown.position.set(x,2.25,z);crown.castShadow=true;world.add(crown);const crown2=new THREE.Mesh(new THREE.IcosahedronGeometry(.85,1),green);crown2.position.set(x+.45,2.8,z+.2);world.add(crown2)}
 function building(x,z,w,h,d,col){cube(world,mat(col),x,h/2,z,w,h,d);for(let y=1;y<h-.5;y+=1.3)for(let xx=-w/2+.6;xx<w/2-.3;xx+=1.15)cube(world,mat(0x86a7b0),x+xx,y,z+d/2+.012,.42,.52,.03)}
 for(let z=-4;z>-110;z-=9){tree(-9.2,z);tree(9.2,z-3);if(z<-12){building(-14,z,5,4+(Math.abs(z)%9),5,0xc8bba2);building(14,z-4,5,5+(Math.abs(z)%8),5,0xd0c5b2)}}
+// AREA 01 entry gateway: a clear visual threshold into the protest-site zone.
+const entryGate=new THREE.Group();scene.add(entryGate);
+cube(entryGate,red,-5.8,2.65,-1.8,.28,5.3,.32);
+cube(entryGate,red,5.8,2.65,-1.8,.28,5.3,.32);
+cube(entryGate,cream,0,5.25,-1.8,11.9,.34,.42);
+cube(entryGate,red,0,5.62,-1.8,8.6,.25,.42);
+// Use canvas-rendered text so the location remains legible on mobile.
+const gateCanvas=document.createElement('canvas');gateCanvas.width=1024;gateCanvas.height=128;
+const gateCtx=gateCanvas.getContext('2d');gateCtx.fillStyle='#8f3027';gateCtx.fillRect(0,0,1024,128);
+gateCtx.fillStyle='#fff3d7';gateCtx.font='bold 54px Arial';gateCtx.textAlign='center';gateCtx.fillText('JANTAR MANTAR PROTEST SITE',512,80);
+const gateTexture=new THREE.CanvasTexture(gateCanvas);
+const gateLabel=new THREE.Mesh(new THREE.PlaneGeometry(8.5,1.06),new THREE.MeshBasicMaterial({map:gateTexture,side:THREE.DoubleSide}));
+gateLabel.position.set(0,5.15,-2.03);entryGate.add(gateLabel);
 // AREA 01 — Jantar Mantar protest-site entry props (first focused build).
 // These are a procedural blockout, not a surveyed one-to-one reconstruction.
 const area01=new THREE.Group();scene.add(area01);
