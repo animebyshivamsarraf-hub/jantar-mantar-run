@@ -28,13 +28,17 @@ The following asset IDs were found in the connected PINOC library. Signed downlo
 | Realistic protest site v2 | `afe93872-0a38-4c79-831f-9062fac432de` | Plaza-to-road visual reference; normalized |
 | Photoreal Delhi protest route master | `b7a4ff75-5735-42f7-86a6-651ea1101b2b` | Wide route reference; normalized |
 
-A new Module B scene is currently being generated for the road continuation toward Sansad Marg. Add its asset ID here after PINOC reports it ready.
+| Module B — Sansad Marg connected road | `2824d991-051d-4e44-b7cb-142586d81fa4` | Newly generated; normalized, identity placement |
 
 ## Assembly order
 
 1. Lock the Module A starting view and verify the Jantar Mantar entrance / protest forecourt silhouette against reliable reference photos.
 2. Finish Module A's separate game-ready road, paving, building and edge-prop meshes.
 3. Add Module B as a connected Sansad Marg road corridor; validate road width, ground height and entry/exit orientation before blending.
+
+## Current 3D scene work
+
+The hosted 3D Jutsu source scene is [JANTAR MANTAR RUN — Delhi Protest Environment Base](https://higgsfield.ai/3d-jutsu/a500419b-8e26-4837-bba6-f1911675b305). Revision 4 adds a first detail pass: 213 shared-mesh window instances, roadside streetlights, bollards, three temporary tent structures, tree foliage/branches, a Delhi-style bus, a police van, and physical roadside location boards. This is still a procedural scene blockout with generated geometry; it is not yet a photogrammetry-accurate Jantar Mantar reconstruction or a tested Android game scene.
 4. Build reusable prop families: metal crowd-control barricades, beige tents, water crates, streetlights, trees, Indian traffic, police van and bus.
 5. Add landmark-specific structures and location boards only where reference material supports their placement.
 6. Integrate assets into the actual game scene and run a real Android performance check. The browser viewer is for quick visual review, not proof of Android performance.
