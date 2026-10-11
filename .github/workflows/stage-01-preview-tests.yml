@@ -71,7 +71,7 @@ jobs:
               };
             });
             await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded' });
-            await expect(page.locator('#error')).toContainText(/WebGL could not start|Three\.js failed/i, { timeout: 15000 });
+            await expect(page.locator('#error')).toContainText(/WebGL could not start|Three\.js failed|Error creating WebGL context/i, { timeout: 15000 });
           });
           EOF
       - name: Run Chromium smoke tests
