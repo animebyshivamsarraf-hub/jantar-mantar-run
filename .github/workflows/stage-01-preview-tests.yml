@@ -5,6 +5,7 @@ on:
     branches: [scratch/new-game-v1]
     paths:
       - 'stage-01-foundation.html'
+      - 'stage-02-pinoc-environment-test.html'
       - '.github/workflows/stage-01-preview-tests.yml'
   workflow_dispatch:
 
