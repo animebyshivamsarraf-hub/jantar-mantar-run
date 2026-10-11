@@ -40,6 +40,40 @@ observatory(-12,-13,1.3);observatory(12,-24,.9);observatory(-12,-44,.8);
 function tree(x,z){cylinder(world,mat(0x6a4a32),x,.8,z,.18,.25,1.6);const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.25,1),leaf);crown.position.set(x,2.25,z);crown.castShadow=true;world.add(crown);const crown2=new THREE.Mesh(new THREE.IcosahedronGeometry(.85,1),green);crown2.position.set(x+.45,2.8,z+.2);world.add(crown2)}
 function building(x,z,w,h,d,col){cube(world,mat(col),x,h/2,z,w,h,d);for(let y=1;y<h-.5;y+=1.3)for(let xx=-w/2+.6;xx<w/2-.3;xx+=1.15)cube(world,mat(0x86a7b0),x+xx,y,z+d/2+.012,.42,.52,.03)}
 for(let z=-4;z>-110;z-=9){tree(-9.2,z);tree(9.2,z-3);if(z<-12){building(-14,z,5,4+(Math.abs(z)%9),5,0xc8bba2);building(14,z-4,5,5+(Math.abs(z)%8),5,0xd0c5b2)}}
+// AREA 01 — Jantar Mantar protest-site entry props (first focused build).
+// These are a procedural blockout, not a surveyed one-to-one reconstruction.
+const area01=new THREE.Group();scene.add(area01);
+const tentCloth=mat(0xb7a16e), tentShade=mat(0x756347), crateBlue=mat(0x477d9a), bottleGreen=mat(0x4b9c79), bannerCloth=mat(0xe7ddc4);
+function tent(x,z,w=3.4,d=2.5){
+ const g=new THREE.Group();g.position.set(x,0,z);area01.add(g);
+ // Four light supports and a sloped tarpaulin roof.
+ for(const px of [-w/2,w/2])for(const pz of [-d/2,d/2])cylinder(g,mat(0x77736a),px,1.15,pz,.035,.035,2.3,6);
+ const roof=cube(g,tentCloth,0,2.15,0,w,.12,d);roof.rotation.z=.07;
+ cube(g,tentShade,0,1.12,0,w*.84,.06,d*.72);
+ cube(g,bannerCloth,0,1.45,-d/2-.025,w*.55,.65,.05);
+}
+function waterCrate(x,z){
+ cube(area01,crateBlue,x,.22,z,.7,.42,.55);
+ for(let i=0;i<3;i++)for(let j=0;j<2;j++){
+  cylinder(area01,bottleGreen,x-.22+i*.22,.55,z-.13+j*.25,.045,.045,.28,7);
+ }
+}
+tent(-10,-3,3.5,2.7);tent(10,-7,3.8,2.8);tent(-9,-18,3.1,2.5);
+waterCrate(-7.2,-4.6);waterCrate(7.3,-8.4);waterCrate(-7.4,-19.5);
+// Blank cloth placards on simple timber supports: no generated slogans.
+function blankPlacard(x,z,w=1.1){
+ cylinder(area01,mat(0x6b5139),x-.38,.75,z,.035,.035,1.5,6);
+ cylinder(area01,mat(0x6b5139),x+.38,.75,z,.035,.035,1.5,6);
+ cube(area01,bannerCloth,x,1.22,z,w,.62,.07);
+}
+blankPlacard(-5.6,-6,1.25);blankPlacard(5.4,-12,1.25);
+// Roadside bollards mark the entrance edge while keeping the center route open.
+for(let z=1;z>=-11;z-=3){
+ cylinder(area01,white,-6.2,.42,z,.13,.13,.84,8);
+ cylinder(area01,red,-6.2,.62,z,.135,.135,.2,8);
+ cylinder(area01,white,6.2,.42,z,.13,.13,.84,8);
+ cylinder(area01,red,6.2,.62,z,.135,.135,.2,8);
+}
 // Protest crowd behind barricade: simplified distinct people and blank signs
 const crowd=new THREE.Group();scene.add(crowd);
 function person(parent,x,z,shirt=blue,scale=1){const g=new THREE.Group();g.position.set(x,0,z);parent.add(g);cylinder(g,mat(shirt),0,.9,0,.22,.28,.9*scale,9);const head=new THREE.Mesh(new THREE.SphereGeometry(.19*scale,10,8),skin);head.position.set(0,1.55*scale,0);g.add(head);cube(g,mat(shirt),-.27,.95,0,.18,.62,.2);cube(g,mat(shirt),.27,.95,0,.18,.62,.2);return g}
