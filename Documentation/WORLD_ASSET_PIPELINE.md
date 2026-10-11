@@ -30,6 +30,12 @@ The following asset IDs were found in the connected PINOC library. Signed downlo
 | Module B — Sansad Marg connected road | `2824d991-051d-4e44-b7cb-142586d81fa4` | Connected road extension; normalized, identity placement |
 | Module C — observatory landmark reference | `d2691515-bcbb-464d-90f4-2cffc175a256` | Newly generated reference focused on Samrat Yantra, Jai Prakash and Ram Yantra forms; normalized |
 
+## Character and motion
+
+- PINOC character asset: `334cfc33-cd69-4f33-9fe6-37c6245976f1` — “Man in Casual Wear”, generated as the initial adult runner protagonist reference. It is a rigged Gaussian-splat character, not a polygon mesh.
+- PINOC motion asset: `32c1d7ba-29d6-466c-a2bc-56ff17ca4d1a` — “Running”, selected from the free curated motion library. A compatible splat-skeleton export or the web Splat Engine still needs to be connected before this character can animate inside the game.
+- PINOC library: https://viggle.ai/pinoc/app. Signed file URLs expire; refresh them in PINOC when transferring assets.
+
 ## Current 3D scene work
 
 The hosted 3D Jutsu source scene is [JANTAR MANTAR RUN — Delhi Protest Environment Base](https://higgsfield.ai/3d-jutsu/a500419b-8e26-4837-bba6-f1911675b305).
@@ -38,7 +44,7 @@ Revision 4 contained the first detail pass: 213 window instances, roadside stree
 
 Revision 5 adds procedural, editable landmark-inspired geometry for a Samrat Yantra-style triangular gnomon with steps, a Jai Prakash-style concave bowl with radial/concentric scales, and a Ram Yantra-style circular instrument wall. It also repositions the temporary shelter concept to the route edges, adds twelve roadside bollards, and adjusts the delivery camera/daylight setup. A 640×400 preview render was published as part of the scene operation.
 
-These are reference-guided procedural approximations, not a photogrammetry-accurate or surveyed reconstruction. The generated PINOC Module A/B/C environment files are still separate Gaussian-splat assets and are **not yet integrated into the runtime**. The hosted scene is also not yet a tested Android game build.
+These are reference-guided procedural approximations, not a photogrammetry-accurate or surveyed reconstruction. The generated PINOC Module A/B/C environment files are still separate Gaussian-splat assets and are **not yet integrated into the runtime**. The character and running clip are also not yet connected to the browser game. The hosted scene is not yet a tested Android game build.
 
 ## Assembly order
 
@@ -47,8 +53,9 @@ These are reference-guided procedural approximations, not a photogrammetry-accur
 3. Finish separate game-ready road, paving, building and edge-prop meshes.
 4. Add Module B as a connected Sansad Marg road corridor; validate road width, ground height and entry/exit orientation before blending.
 5. Treat Module C as a landmark visual reference until a supported durable asset-transfer path is confirmed.
-6. Build reusable prop families: metal crowd-control barricades, beige tents, water crates, streetlights, trees, Indian traffic, police van and bus.
-7. Integrate assets into the actual game scene and run a real Android performance check. The browser viewer is for quick visual review, not proof of Android performance.
+6. Connect the character and a compatible running clip through the PINOC Splat Engine path, then profile it on mobile.
+7. Build reusable prop families: metal crowd-control barricades, beige tents, water crates, streetlights, trees, Indian traffic, police van and bus.
+8. Integrate assets into the actual game scene and run a real Android performance check. The browser viewer is for quick visual review, not proof of Android performance.
 
 ## Accuracy and quality gates
 
