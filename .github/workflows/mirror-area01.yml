@@ -1,0 +1,35 @@
+name: Mirror PINOC Area 01 Environment
+
+on:
+  push:
+    paths:
+      - ".github/workflows/mirror-area01.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download generated Area 01 SPZ
+        env:
+          SPZ_URL: "https://cdn.viggle.ai/3d-editor-assets/environments/587b4059-90c0-49ee-aedf-7e3cd3df844b/iter/0/normalised.spz?Expires=1791741600&KeyName=vigglecloudcdn2&Signature=8VtCNiFkBOSNQyaxZsa6cZ3eNdk"
+        run: |
+          mkdir -p public/assets/environments
+          curl --fail --location --retry 2 "$SPZ_URL" -o public/assets/environments/area-01-jantar-mantar.spz
+          test -s public/assets/environments/area-01-jantar-mantar.spz
+          ls -lh public/assets/environments/area-01-jantar-mantar.spz
+      - name: Commit asset into repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/environments/area-01-jantar-mantar.spz
+          if git diff --cached --quiet; then
+            echo "Asset already mirrored; nothing to commit."
+            exit 0
+          fi
+          git commit -m "Add generated PINOC Area 01 environment asset"
+          git push
