@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Jantar Mantar Run — Fresh 3D World Prototype</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#b7d5e2;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:fixed;inset:0;pointer-events:none}.top{display:flex;justify-content:space-between;gap:8px;padding:12px}.chip{background:#101a2be8;border:1px solid #ffffff40;border-radius:12px;padding:9px 12px;font-size:11px;font-weight:850;box-shadow:0 4px 16px #0002}.note{position:absolute;top:68px;left:12px;max-width:300px;background:#101a2bd9;border:1px solid #ffffff30;border-radius:12px;padding:10px 12px;font-size:11px;line-height:1.45}.controls{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:12px;right:12px;display:flex;justify-content:space-between;align-items:end;gap:10px;pointer-events:auto}.pad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,44px);gap:5px}.btn{background:#101a2be8;color:white;border:1px solid #ffffff55;border-radius:12px;font-weight:900;font-size:16px;touch-action:manipulation;min-width:48px;min-height:44px}.btn:active{background:#d49a2b}.side{display:flex;flex-direction:column;gap:7px}.side .btn{padding:9px 12px;font-size:11px}.toast{position:absolute;bottom:126px;left:50%;transform:translateX(-50%);background:#101a2be8;padding:8px 12px;border-radius:10px;font-size:11px;white-space:nowrap}.status{position:fixed;inset:0;display:grid;place-items:center;background:#b7d5e2;color:#152334;text-align:center;padding:24px}.status.hide{display:none}
+</style>
+</head>
+<body>
+<div id="loading" class="status">Building the fresh 3D world…<br><small>Requires WebGL and an internet connection for Three.js.</small></div>
+<div class="hud"><div class="top"><div class="chip">JMR · FRESH 3D WORLD</div><div class="chip" id="coords">MODULE A · WALK MODE</div></div><div class="note"><b>Real 3D geometry prototype</b><br>Road, pavements, buildings, trees, barriers and bus are separate meshes—not a blurry panorama. Drag to look; use the pad to move.</div><div class="controls"><div class="pad"><span></span><button class="btn" id="forward">▲</button><span></span><button class="btn" id="left">◀</button><button class="btn" id="back">▼</button><button class="btn" id="right">▶</button></div><div class="side"><button class="btn" id="reset">RESET VIEW</button><button class="btn" id="quality">QUALITY: HIGH</button></div></div><div class="toast">Prototype geometry · not a surveyed exact scan</div></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+const loading=document.querySelector('#loading');
+try {
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;document.body.insertBefore(renderer.domElement,document.body.firstChild);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xa9d0e3);
+const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.1,400);camera.position.set(0,2.2,11);
+scene.add(new THREE.HemisphereLight(0xe9f5ff,0x655844,2.1));const sun=new THREE.DirectionalLight(0xffe6bd,3.1);sun.position.set(-24,38,16);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-35;sun.shadow.camera.right=35;sun.shadow.camera.top=40;sun.shadow.camera.bottom=-60;scene.add(sun);
+const mat=(c,r=.82,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+const asphalt=mat(0x41474a), asphalt2=mat(0x4b5051), stone=mat(0xb8b2a5), sandstone=mat(0xc9b79b), redstone=mat(0x9d4e38), cream=mat(0xe1d2b4), glass=mat(0x5e7e88,.32,.15), dark=mat(0x25292a), steel=mat(0x717d80,.42,.65), yellow=mat(0xe2b83d), green=mat(0x365b38), leaves=mat(0x497847), leaves2=mat(0x668b4d), busWhite=mat(0xe9e7dc,.55), busYellow=mat(0xd8a23a), tire=mat(0x202326), red=mat(0x9b3c2e);
+function box(p,m,x,y,z,w,h,d){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;p.add(o);return o}
+function cyl(p,m,x,y,z,r1,r2,h,n=12){const o=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,n),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;p.add(o);return o}
+function sphere(p,m,x,y,z,sx,sy,sz){const o=new THREE.Mesh(new THREE.SphereGeometry(1,12,9),m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=true;p.add(o);return o}
+const world=new THREE.Group();scene.add(world);
+// Large continuous road, shoulders and modular concrete paving.
+box(world,asphalt,0,-.16,-88,14,.3,220);box(world,stone,-8.2,-.11,-88,2.4,.25,220);box(world,stone,8.2,-.11,-88,2.4,.25,220);
+box(world,mat(0x77756c),-6.85,.02,-88,.22,.26,220);box(world,mat(0x77756c),6.85,.02,-88,.22,.26,220);
+for(let z=18;z>-200;z-=4){box(world,asphalt2,0,-.005,z,13.6,.015,.025);box(world,mat(0xe4ddc9),-2.3,-.005,z-1.2,.075,.02,2.2);box(world,mat(0xe4ddc9),2.3,-.005,z-1.2,.075,.02,2.2)}
+// Detailed sidewalk slab joints.
+for(let z=18;z>-200;z-=2.5){box(world,mat(0xa6a194),-8.2,.035,z,2.25,.04,.035);box(world,mat(0xa6a194),8.2,.035,z,2.25,.04,.035)}
+// Buildings: individual facades, window bands, ledges and recessed-looking dark windows.
+function building(x,z,w,h,d,base){
+ const g=new THREE.Group();g.position.set(x,0,z);world.add(g);box(g,mat(base),0,h/2,0,w,h,d);
+ box(g,mat(0xe0d1b6),0,.25, d/2+.03,w+.15,.18,.12);
+ for(let y=1.05;y<h-.4;y+=1.25){box(g,mat(0xb5a58e),0,y,d/2+.055,w,.07,.12);for(let xx=-w/2+.55;xx<w/2-.25;xx+=1.12){box(g,glass,xx,y+.43,d/2+.04,.62,.68,.055);box(g,mat(0x9e9a8e),xx,y+.43,d/2+.085,.045,.73,.025)}}
+ for(let xx=-w/2+.35;xx<w/2;xx+=1.5)box(g,mat(0xe0d2b9),xx,.55,d/2+.08,.09,.9,.12);
+ box(g,mat(0x857e70),0,h+.08,0,w+.35,.16,d+.35);
+}
+building(-14,-22,7,9,7,0xc8b99e);building(14,-29,7,12,8,0xd1c5ad);building(-14,-48,8,13,7,0xc2b59f);building(14,-59,8,10,8,0xd0c3ac);building(-15,-83,8,15,8,0xb9b09f);building(15,-91,8,13,8,0xd3c6ae);
+// Distant civic buildings to create a real horizon and scale.
+for(let i=0;i<7;i++){building(-24-i%2*2,-110-i*13,9,10+(i%3)*3,9,0xb8b09f);building(24+i%2*2,-116-i*13,9,12+(i%3)*2,9,0xc6baa4)}
+// Trees with trunk, branching limbs and layered non-spherical canopies.
+function tree(x,z,s=1){const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);world.add(g);cyl(g,mat(0x60442f),0,1.35,0,.2,.28,2.7);for(const [dx,dy,dz] of [[-.55,2,.05],[.48,2.2,.1],[.1,2.4,-.35]]){const limb=cyl(g,mat(0x60442f),dx/2,dy,dz,.075,.12,1.25,8);limb.rotation.z=dx*.7;limb.rotation.x=dz*.5}for(const [x1,y1,z1,r] of [[0,3,0,1.2],[-.65,2.9,.1,.8],[.62,3.1,-.15,.86],[.15,3.65,.1,.75],[-.2,3.35,-.5,.7]]){const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(r,2),Math.random()>.5?leaves:leaves2);crown.position.set(x1,y1,z1);crown.scale.set(1,.85,1);crown.castShadow=true;g.add(crown)}}
+for(let z=8;z>-190;z-=10){tree(-9.5,z,1+(Math.sin(z)*.1));tree(9.5,z-4,.9+(Math.cos(z)*.12))}
+// Realistic road furniture and crowd-control metal railings.
+function barrier(x,z,len=2.5){const g=new THREE.Group();g.position.set(x,.1,z);world.add(g);box(g,yellow,0,.35,0,len,.7,.55);for(let xx=-len/2+.22;xx<len/2;xx+=.45)box(g,dark,xx,.36,.285,.22,.7,.035)}
+function fence(x,z,len=4){const g=new THREE.Group();g.position.set(x,0,z);world.add(g);for(let xx=0;xx<=len;xx+=len/4){cyl(g,steel,xx,.65,0,.045,.045,1.3,8)}cyl(g,steel,len/2,1.12,0,.035,.035,len,8);cyl(g,steel,len/2,.27,0,.035,.035,len,8);for(let xx=.12;xx<len;xx+=.24)cyl(g,steel,xx,.68,0,.018,.018,.82,6)}
+for(let i=0;i<10;i++){const z=-7-i*8;barrier(-5.5,z,2.8);fence(4.8,z-1,3.7);}
+// Bollards along sidewalk edges.
+for(let z=13;z>-140;z-=3.8){for(const x of [-6.9,6.9]){cyl(world,dark,x,.42,z,.12,.15,.84,12);cyl(world,mat(0xd9d0b8),x,.67,z,.125,.125,.13,12)}}
+// Bus parked at the edge, with separated panels, windows, lights and wheels.
+const bus=new THREE.Group();bus.position.set(4.2,.08,-42);world.add(bus);box(bus,busWhite,0,1.55,0,2.6,3.1,8.5);box(bus,busYellow,0,.65,.05,2.63,.34,8.45);box(bus,mat(0x4c6871),0,2.34,0,2.62,.95,7.8);
+for(const z of [-3.3,-2,-.7,.7,2,3.3]){box(bus,mat(0x28363b),1.315,2.33,z,.035,.78,.12)}
+for(const z of [-2.7,2.7]){cyl(bus,tire,-1.22,.55,z,.46,.46,.22,16).rotation.z=Math.PI/2;cyl(bus,tire,1.22,.55,z,.46,.46,.22,16).rotation.z=Math.PI/2}
+for(const x of [-.8,.8]){box(bus,mat(0xf4e5bb),x,1.25,4.27,.38,.22,.05);box(bus,red,x,.87,4.27,.25,.15,.05)}
+// Jantar Mantar-inspired ochre-red geometric landmark, as separate solid meshes.
+function landmark(x,z,s=1){const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);world.add(g);box(g,red,0,1.1,0,4.2,2.2,3.6);box(g,cream,0,2.24,0,4.35,.15,3.75);box(g,red,0,2.8,0,2.9,1,2.7);box(g,cream,0,3.33,0,3.05,.13,2.85);box(g,red,0,3.75,0,1.25,.75,1.4);cyl(g,cream,0,4.2,0,.12,.2,.25,8);box(g,mat(0x643b2c),0,.85,1.82,1.1,1.35,.05)}
+landmark(-12,-12,1.1);landmark(12,-21,.8);
+// A discreet player guide marker; no malformed generated character is baked into this world.
+const marker=new THREE.Group();scene.add(marker);cyl(marker,mat(0x273e59),0,.52,0,.28,.32,1.04,12);sphere(marker,mat(0x9b694b),0,1.25,0,.25,.28,.25);box(marker,mat(0xd9b36a),0,.84,0,.65,.36,.4);marker.position.set(0,0,5);marker.visible=false;
+let yaw=0,pitch=-.06,move=0,strafe=0,high=true,dragging=false,px=0,py=0;
+function setMove(k,v){if(k==='forward')move=v;if(k==='back')move=-v;if(k==='left')strafe=-v;if(k==='right')strafe=v}
+for(const k of ['forward','back','left','right']){const el=document.getElementById(k);el.addEventListener('pointerdown',e=>{e.preventDefault();el.setPointerCapture(e.pointerId);setMove(k,1)});for(const ev of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(ev,()=>setMove(k,0))}
+renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;px=e.clientX;py=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-px,dy=e.clientY-py;px=e.clientX;py=e.clientY;yaw-=dx*.004;pitch=THREE.MathUtils.clamp(pitch-dy*.003,-.55,.45)});renderer.domElement.addEventListener('pointerup',()=>dragging=false);renderer.domElement.addEventListener('pointercancel',()=>dragging=false);
+document.getElementById('reset').onclick=()=>{camera.position.set(0,2.2,11);yaw=0;pitch=-.06};document.getElementById('quality').onclick=e=>{high=!high;renderer.setPixelRatio(Math.min(devicePixelRatio,high?1.5:1));sun.castShadow=high;e.target.textContent='QUALITY: '+(high?'HIGH':'MOBILE')};
+addEventListener('keydown',e=>{if(['ArrowUp','w','W'].includes(e.key))move=1;if(['ArrowDown','s','S'].includes(e.key))move=-1;if(['ArrowLeft','a','A'].includes(e.key))strafe=-1;if(['ArrowRight','d','D'].includes(e.key))strafe=1});addEventListener('keyup',e=>{if(['ArrowUp','ArrowDown','w','W','s','S'].includes(e.key))move=0;if(['ArrowLeft','ArrowRight','a','A','d','D'].includes(e.key))strafe=0});
+const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));camera.position.addScaledVector(forward,move*dt*8);camera.position.addScaledVector(right,strafe*dt*8);camera.position.x=THREE.MathUtils.clamp(camera.position.x,-5.5,5.5);camera.position.z=THREE.MathUtils.clamp(camera.position.z,-155,13);camera.position.y=THREE.MathUtils.clamp(2.2+pitch*2,1.5,3.5);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;document.getElementById('coords').textContent='X '+camera.position.x.toFixed(1)+'m · Z '+camera.position.z.toFixed(1)+'m';renderer.render(scene,camera)}animate();loading.classList.add('hide');
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+}catch(e){console.error(e);loading.innerHTML='3D world failed to initialise.<br><small>Open this page in Chrome with WebGL enabled, then reload.</small>'}
+</script>
+</body></html>
