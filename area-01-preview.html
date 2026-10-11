@@ -10,7 +10,7 @@
 </head>
 <body>
 <div id="viewer"></div>
-<div class="topbar"><a class="back" href="./index.html">← BACK TO GAME</a><div class="chip">AREA 01 · JANTAR MANTAR</div></div>
+<div class="topbar"><a class="back" href="https://github.com/animebyshivamsarraf-hub/jantar-mantar-run/blob/main/index.html">← BACK TO GAME</a><div class="chip">AREA 01 · JANTAR MANTAR</div></div>
 <div id="status" class="status">Loading Area 01 environment…<small>First load may take a little while on mobile.</small></div>
 <div class="foot">Drag to look around · Pinch to zoom · Area 01 environment preview</div>
 <script type="module">
@@ -26,7 +26,7 @@ try {
     gpuAcceleratedSort: true,
     sceneRevealMode: GaussianSplats3D.SceneRevealMode.Instant
   });
-  await viewer.addSplatScene('./public/assets/environments/area-01-jantar-mantar.spz', {
+  await viewer.addSplatScene('https://raw.githubusercontent.com/animebyshivamsarraf-hub/jantar-mantar-run/main/public/assets/environments/area-01-jantar-mantar.spz', {
     format: GaussianSplats3D.SceneFormat.Spz,
     splatAlphaRemovalThreshold: 5,
     showLoadingUI: true,
