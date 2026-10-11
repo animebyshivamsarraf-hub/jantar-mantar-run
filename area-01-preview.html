@@ -26,7 +26,7 @@ try {
     gpuAcceleratedSort: true,
     sceneRevealMode: GaussianSplats3D.SceneRevealMode.Instant
   });
-  await viewer.addSplatScene('https://raw.githubusercontent.com/animebyshivamsarraf-hub/jantar-mantar-run/main/public/assets/environments/area-01-jantar-mantar.spz', {
+  await viewer.addSplatScene('https://cdn.viggle.ai/3d-editor-assets/environments/5f7a1776-2762-43c0-a5a9-2e1d03b21d2c/iter/0/normalised.spz?Expires=1791748800&KeyName=vigglecloudcdn2&Signature=kLIHa3x2A9ZlJrEJnaSRRNOvQEI', {
     format: GaussianSplats3D.SceneFormat.Spz,
     splatAlphaRemovalThreshold: 5,
     showLoadingUI: true,
@@ -40,7 +40,7 @@ try {
   addEventListener('resize', () => viewer.onResize?.());
 } catch (error) {
   console.error(error);
-  status.innerHTML = 'Environment could not load.<small>The saved Area 01 asset could not load. Check your connection and reload the page.</small>';
+  status.innerHTML = 'Environment could not load.<small>PINOC scene failed to load. Reload once; this preview link is temporary.</small>';
 }
 </script>
 </body>
