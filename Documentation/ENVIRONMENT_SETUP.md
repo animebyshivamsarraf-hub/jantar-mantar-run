@@ -1,40 +1,23 @@
-# Unity Environment Setup — FBX Intake
+# Unity Environment Setup
 
-This guide assumes access to a desktop Unity Editor. An Android phone can manage this repository, but importing and inspecting a 3D scene requires a supported computer/editor workflow.
+## Before importing assets
+1. Install a current Unity LTS release with Android Build Support (SDK/NDK and OpenJDK modules).
+2. Create or open a Unity project in this repository. Do not assume the repository already contains a Unity project.
+3. Set the project to 3D (URP is an option if mobile lighting/performance is profiled).
+4. Create folders under `Assets/`: Scenes, Scripts, Prefabs, Materials, Characters, Environment, UI and Audio.
 
-## 1. Add the asset
-1. Upload `Endless Runner (1).fbx` using GitHub's web uploader or another binary-safe workflow.
-2. Preferred path: `Assets/Environment/EndlessRunnerEnvironment.fbx`.
-3. Keep source and license/permission information.
-4. Do not paste binary FBX data into a text editor or create a text placeholder with an FBX extension.
+## Import the supplied FBX
+1. Add `Endless Runner (1)(1).fbx` to `Assets/Environment/Source/` using a binary-safe transfer.
+2. Inspect Model, Rig, Animation and Materials import tabs.
+3. Check scale and forward axis; inspect mesh normals and material/texture references.
+4. Add colliders only where needed; use simplified colliders for gameplay.
+5. Place it in an empty scene and confirm scale, pivot, orientation and visual appearance.
+6. Keep the original source unchanged; record derived/optimized versions separately.
 
-## 2. Import in Unity
-1. Create/open the Unity project using the selected Editor version.
-2. Place the FBX in `Assets/Environment/`.
-3. Select it in the Project window and inspect Model, Rig, Materials, and Animation settings as applicable.
-4. Apply changes and inspect it in a scene.
+## First scene
+Create a simple test scene with a straight road, three lane guides, player placeholder, follow camera, one obstacle and one collectible. Validate movement and collision before detailed art production.
 
-## 3. Validate
-- Check scale and forward direction.
-- Check materials and any separately required textures.
-- Inspect normals, pivots, and hierarchy.
-- Add colliders to walkable surfaces and obstacles.
-- Prefer simple colliders; avoid MeshColliders on every decorative object.
-- Verify the runner has a clear lane path.
-- Determine whether the FBX contains a static environment, one combined mesh, or modular pieces; the filename alone does not tell us.
-
-## 4. Mobile performance
-- Inspect polygon counts and texture sizes.
-- Reduce unnecessary materials and transparent surfaces.
-- Use baked lighting where appropriate.
-- Profile on a real Android device.
-
-## Checklist
-- [ ] FBX uploaded and verified
-- [ ] Textures included if needed
-- [ ] Asset permissions recorded
-- [ ] Scale/orientation checked
-- [ ] Collision surfaces tested
-- [ ] Mobile performance measured
-
-An FBX is an asset, not a complete playable game. Scenes, scripts, prefabs, animations, UI, audio, and project settings still need to be added.
+## Build checks
+- Test on a real Android device at the intended screen orientation.
+- Profile frame rate, memory, texture sizes and draw calls.
+- WebGL is optional and must be tested separately; a Unity editor scene is not a browser preview.
