@@ -1,53 +1,74 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#101722"><title>Jantar Mantar Run — Third Person Control Lab</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#0b1118"><title>Jantar Mantar Run — PINOC 3D Character</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111923;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:none}#stage{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom))}.top,.bottom{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.panel{background:#101a2be8;border:1px solid #ffffff35;border-radius:13px;padding:9px 11px;font-size:11px;box-shadow:0 4px 16px #0002;backdrop-filter:blur(8px)}.brand{font-weight:900;letter-spacing:.07em}.muted{color:#cbd5e1;font-size:10px;margin-top:3px;line-height:1.4}.status{max-width:48%;line-height:1.4}.bottom{align-items:flex-end}.joystick{width:136px;height:136px;border:2px solid #ffffff70;border-radius:50%;background:#101a2b99;position:relative;pointer-events:auto;touch-action:none;box-shadow:inset 0 0 20px #0005}.stick{position:absolute;width:54px;height:54px;left:39px;top:39px;border-radius:50%;background:#e8f0f7df;border:2px solid #fff;box-shadow:0 3px 12px #0007;pointer-events:none}.actions{display:grid;grid-template-columns:repeat(2,64px);gap:7px;pointer-events:auto}.btn{min-height:48px;border:1px solid #ffffff55;border-radius:13px;background:#132236ef;color:#fff;font-size:10px;font-weight:900;touch-action:none;padding:6px}.btn:active,.btn.active{background:#247c68}.loading{position:fixed;inset:0;z-index:4;display:grid;place-items:center;padding:22px;background:#101722f2}.loading.hidden{display:none}.card{max-width:430px;width:100%;background:#13202d;border:1px solid #ffffff2b;border-radius:18px;padding:20px}.card h1{font-size:22px;margin:0 0 10px}.card p{font-size:13px;color:#c5d1dd;line-height:1.55}.bar{height:5px;border-radius:5px;background:#293949;overflow:hidden}.bar i{display:block;width:70%;height:100%;background:#4fd1b0}@media(min-width:700px){.joystick{width:150px;height:150px}.stick{left:46px;top:46px}.actions{grid-template-columns:repeat(3,72px)}}@media(max-width:380px){.joystick{width:116px;height:116px}.stick{left:30px;top:30px}.actions{grid-template-columns:repeat(2,58px)}.btn{min-height:43px}}
-</style></head><body><div id="stage"></div>
-<div class="hud"><div class="top"><div class="panel"><div class="brand">JANTAR MANTAR RUN</div><div class="muted">THIRD-PERSON CONTROL LAB</div></div><div class="panel status" id="status">Loading 3D scene…</div></div>
-<div class="bottom"><div id="joy" class="joystick" aria-label="Movement joystick"><div id="stick" class="stick"></div></div><div class="actions"><button class="btn" id="jump">JUMP</button><button class="btn" id="sprint">SPRINT</button><button class="btn" id="crouch">CROUCH</button><button class="btn" id="cam">CAMERA</button><button class="btn" id="reset">RESET</button><button class="btn" id="help">CONTROLS</button></div></div></div>
-<div id="loading" class="loading"><div class="card"><h1>3D Control Lab</h1><p>Starting a clean Three.js scene. This version does not import Viggle Splat Engine, so the cross-origin worker error will not block the controls.</p><div class="bar"><i></i></div><p id="loadmsg">Loading renderer…</p></div></div>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b1118;color:#f4f7fb;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#game{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));pointer-events:none}.top,.bottom{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.panel{background:#101a2be8;border:1px solid #ffffff2b;border-radius:14px;padding:10px 12px;backdrop-filter:blur(10px)}.brand{font-size:12px;font-weight:900;letter-spacing:.08em}.muted{font-size:11px;color:#bac9d8;line-height:1.45;margin-top:4px}.status{max-width:58%;font-size:11px;line-height:1.45;color:#dce7f2}.controls{display:flex;gap:6px;align-items:end;pointer-events:auto}.pad{display:grid;grid-template-columns:repeat(3,44px);gap:4px}.actions{display:grid;grid-template-columns:repeat(2,auto);gap:5px}.btn{border:1px solid #ffffff40;border-radius:11px;background:#132236ef;color:white;min-height:42px;min-width:44px;padding:10px;font-size:11px;font-weight:850;touch-action:none}.btn.active,.btn:active{background:#2b8a73;color:white}.loading{position:fixed;inset:0;z-index:4;display:grid;place-items:center;padding:22px;background:#0b1118f5}.loading.hidden{display:none}.card{max-width:460px;width:100%;background:#13202d;border:1px solid #ffffff2b;border-radius:18px;padding:20px}.card h1{font-size:23px;margin:0 0 10px}.card p{font-size:13px;color:#c5d1dd;line-height:1.55}.bar{height:5px;border-radius:5px;background:#293949;overflow:hidden}.bar i{display:block;width:25%;height:100%;background:#4fd1b0;animation:loading 1.4s infinite alternate}@keyframes loading{to{width:90%}}.error{color:#ffb7b7!important;overflow-wrap:anywhere;white-space:pre-wrap}a{color:#7de5c9}@media(max-width:480px){.brand{font-size:10px}.muted,.status{font-size:10px}.panel{padding:9px}.pad{grid-template-columns:repeat(3,39px)}.btn{min-width:39px;padding:9px 7px}.controls{gap:5px}.actions{grid-template-columns:repeat(2,auto)}} 
+</style>
+<script type="importmap">{"imports":{"@viggle/splat-engine":"https://esm.sh/@viggle/splat-engine@0.1.1?external=playcanvas","playcanvas":"https://esm.sh/playcanvas@2.18.0"}}</script>
+</head><body><div id="game"></div>
+<div class="hud"><div class="top"><div class="panel"><div class="brand">JANTAR MANTAR RUN</div><div class="muted">PINOC · URBAN EXPLORER</div></div><div class="panel status" id="state">Starting real 3D engine…</div></div>
+<div class="bottom"><div class="controls"><div class="pad"><button class="btn" data-m="forward">▲</button><button class="btn" data-m="left">◀</button><button class="btn" data-m="back">▼</button><button class="btn" data-m="right">▶</button></div></div><div class="controls"><div class="actions"><button class="btn" id="jump">JUMP</button><button class="btn" id="sprint">SPRINT</button><button class="btn" id="idle">IDLE</button><button class="btn" id="reset">RESET</button></div></div></div></div>
+<div id="loading" class="loading"><div class="card"><h1>Loading actual PINOC 3D</h1><p id="message">Connecting to Viggle Splat Engine and loading the real Urban Explorer character plus skeletal animations. First load can take a moment.</p><div class="bar"><i></i></div><p id="error" class="error"></p><p class="muted">If the engine or PINOC asset server refuses the request, the exact error will appear here instead of a fake character.</p><p><a href="https://viggle.ai/pinoc/app" target="_blank" rel="noreferrer">Open this character in PINOC</a></p></div></div>
 <script type="module">
-import * as THREE from 'https://esm.sh/three@0.160.0';
-const $=id=>document.getElementById(id), stage=$('stage'), status=$('status');
-const scene=new THREE.Scene();scene.background=new THREE.Color('#a9c7d5');scene.fog=new THREE.Fog('#a9c7d5',28,100);
-const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,300);
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;stage.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0xffffff,0x6b746b,2.2));const sun=new THREE.DirectionalLight(0xfff0d9,3);sun.position.set(-12,22,10);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(180,180),new THREE.MeshStandardMaterial({color:'#a69c83',roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
-const road=new THREE.Mesh(new THREE.PlaneGeometry(12,150),new THREE.MeshStandardMaterial({color:'#454b50',roughness:.95}));road.rotation.x=-Math.PI/2;road.position.set(0,.012,-28);scene.add(road);
-for(let z=8;z>-95;z-=5){const line=new THREE.Mesh(new THREE.BoxGeometry(.12,.025,2.2),new THREE.MeshStandardMaterial({color:'#eee2b6'}));line.position.set(0,.035,z);scene.add(line)}
-function box(w,h,d,color,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:.8}));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);return m}
-for(let i=0;i<22;i++){let z=8-i*4.7;box(1.5,2.2,1.2,i%2?'#b78d69':'#d0b69a',-9-Math.sin(i)*2,1.1,z);box(1.8,3.3,1.3,i%2?'#d5c1a1':'#9f9b8c',9+Math.cos(i)*2,1.65,z-1)}
-// Landmark-inspired observatory forms for a recognizable original environment.
-for(let i=0;i<4;i++){const x=i%2?6.5:-6.5,z=-12-Math.floor(i/2)*17;const base=box(4,.45,4,'#d8c7a4',x,.22,z);const arc=new THREE.Mesh(new THREE.TorusGeometry(1.45,.15,10,32,Math.PI),new THREE.MeshStandardMaterial({color:'#e6d5b5',roughness:.85}));arc.position.set(x,.5,z);arc.rotation.z=Math.PI;arc.castShadow=true;scene.add(arc);box(.35,1.5,.35,'#b8a07c',x-1.2,1,z);box(.35,1.5,.35,'#b8a07c',x+1.2,1,z)}
-// Stylized test rig: visible placeholder while real PINOC splat+skeletal assets are being integrated.
-const player=new THREE.Group();scene.add(player);
-const suit=new THREE.MeshStandardMaterial({color:'#187663',roughness:.65}), pants=new THREE.MeshStandardMaterial({color:'#283342',roughness:.75}), skin=new THREE.MeshStandardMaterial({color:'#b97d58',roughness:.8}), dark=new THREE.MeshStandardMaterial({color:'#171b21',roughness:.8});
-function limb(parent,geo,mat,x,y,z){const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m}
-const body=limb(player,new THREE.CapsuleGeometry(.34,.68,5,10),suit,0,1.25,0);const head=limb(player,new THREE.SphereGeometry(.24,16,12),skin,0,1.97,0);limb(player,new THREE.SphereGeometry(.245,16,10),dark,0,2.08,-.015);
-const armL=limb(player,new THREE.CapsuleGeometry(.105,.52,4,8),suit,-.43,1.36,0),armR=limb(player,new THREE.CapsuleGeometry(.105,.52,4,8),suit,.43,1.36,0);armL.rotation.z=-.12;armR.rotation.z=.12;
-const legL=limb(player,new THREE.CapsuleGeometry(.14,.58,4,8),pants,-.19,.48,0),legR=limb(player,new THREE.CapsuleGeometry(.14,.58,4,8),pants,.19,.48,0);limb(player,new THREE.BoxGeometry(.28,.13,.45),dark,-.19,.12,-.08);limb(player,new THREE.BoxGeometry(.28,.13,.45),dark,.19,.12,-.08);
-player.position.set(0,0,3);
-let yaw=0,pitch=.18,camDistance=6,vy=0,onGround=true,sprinting=false,crouched=false,walk=0,freeCam=false,drag=null;const input={x:0,y:0,keys:{},buttons:{}};
-function jump(){if(onGround){vy=7.2;onGround=false;status.textContent='JUMPING'}}
-function setBtn(id,fn){$(id).addEventListener('click',fn)}
-setBtn('jump',jump);setBtn('sprint',()=>{sprinting=!sprinting;$('sprint').classList.toggle('active',sprinting);status.textContent=sprinting?'SPRINT ON':'SPRINT OFF'});
-setBtn('crouch',()=>{crouched=!crouched;player.scale.y=crouched?.72:1;$('crouch').classList.toggle('active',crouched);status.textContent=crouched?'CROUCH':'STANDING'});
-setBtn('cam',()=>{freeCam=!freeCam;$('cam').classList.toggle('active',freeCam);status.textContent=freeCam?'FREE CAMERA · DRAG TO LOOK':'FOLLOW CAMERA'});
-setBtn('reset',()=>{player.position.set(0,0,3);yaw=0;pitch=.18;vy=0;onGround=true;sprinting=false;crouched=false;player.scale.y=1;status.textContent='RESET COMPLETE'});
-setBtn('help',()=>{status.textContent='LEFT STICK: move · drag right side: look · JUMP · SPRINT · CROUCH · WASD/ARROWS · SPACE · SHIFT'});
-const joy=$('joy'),stick=$('stick');let joyId=null;
-function joyMove(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=r.width*.34,len=Math.hypot(dx,dy),k=len>max?max/len:1;input.x=dx*k/max;input.y=dy*k/max;stick.style.transform='translate('+dx*k+'px,'+dy*k+'px)'}
-joy.addEventListener('pointerdown',e=>{e.preventDefault();joyId=e.pointerId;joy.setPointerCapture(e.pointerId);joyMove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e)});function joyEnd(e){if(e.pointerId===joyId){joyId=null;input.x=input.y=0;stick.style.transform='translate(0,0)'}}joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
-renderer.domElement.addEventListener('pointerdown',e=>{if(e.clientX<innerWidth*.38&&e.clientY>innerHeight*.5)return;drag={x:e.clientX,y:e.clientY,id:e.pointerId};renderer.domElement.setPointerCapture?.(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;yaw-=dx*.004;pitch=THREE.MathUtils.clamp(pitch+dy*.002,-.12,.72)});renderer.domElement.addEventListener('pointerup',()=>drag=null);renderer.domElement.addEventListener('pointercancel',()=>drag=null);
-addEventListener('keydown',e=>{input.keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();jump()}if(e.key==='Shift')sprinting=true});addEventListener('keyup',e=>{input.keys[e.key.toLowerCase()]=false;if(e.key==='Shift')sprinting=false});
-let prev=performance.now();function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-prev)/1000,.04);prev=now;
-const k=input.keys,f=(input.y<-.12||k.w||k.arrowup?1:0)-(input.y>.12||k.s||k.arrowdown?1:0),s=(input.x>.12||k.d||k.arrowright?1:0)-(input.x<-.12||k.a||k.arrowleft?1:0);
-const mag=Math.min(1,Math.hypot(f,s)),speed=(sprinting||k.shift?8.3:4.8)*(crouched?.48:1),forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));const dx=(forward.x*f+right.x*s)*speed*dt,dz=(forward.z*f+right.z*s)*speed*dt;player.position.x+=dx;player.position.z+=dz;
-const moving=mag>.08;walk+=moving?dt*(sprinting?15:9):0;if(moving){player.rotation.y=Math.atan2(-dx,-dz);legL.rotation.x=Math.sin(walk)*.62*mag;legR.rotation.x=-Math.sin(walk)*.62*mag;armL.rotation.x=-Math.sin(walk)*.45*mag;armR.rotation.x=Math.sin(walk)*.45*mag}else{legL.rotation.x*=.82;legR.rotation.x*=.82;armL.rotation.x*=.82;armR.rotation.x*=.82}
-vy-=19*dt;player.position.y+=vy*dt;if(player.position.y<=0){player.position.y=0;vy=0;onGround=true}
-if(!freeCam){const target=new THREE.Vector3(player.position.x,player.position.y+1.15,player.position.z);const dist=camDistance;const desired=new THREE.Vector3(target.x+Math.sin(yaw)*dist*Math.cos(pitch),target.y+1.1+Math.sin(pitch)*dist,target.z+Math.cos(yaw)*dist*Math.cos(pitch));camera.position.lerp(desired,1-Math.exp(-dt*7));camera.lookAt(target)}
-status.textContent=(sprinting?'SPRINT':crouched?'CROUCH':moving?'MOVING':'READY')+' · '+player.position.x.toFixed(1)+', '+player.position.z.toFixed(1);renderer.render(scene,camera)}
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-camera.position.set(0,4,10);camera.lookAt(0,1,0);$('loading').classList.add('hidden');status.textContent='READY · left joystick to move';requestAnimationFrame(animate);
+const $=id=>document.getElementById(id), state=$('state'), message=$('message'), error=$('error');
+const ASSET={
+ character:'https://cdn.viggle.ai/multiview/2861116e-69f6-4205-a20a-afe8fc436744_generated/9be833f114d2/gpt-image2/front_static.performance.vsplat?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=iMkkqhr3tMVCmWSQIArAPAI5tRM',
+ idle:'https://cdn.viggle.ai/3d-editor-assets/b17fe31f-292a-49ab-83f2-64f1290a45a1_Standing_Idle.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=yrWRx8Km0NFaO7ZMw1l9Olb-BHg',
+ walk:'https://cdn.viggle.ai/3d-editor-assets/45a5bd7d-700f-4041-9dbc-6e4dcffcd954_Walking.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=zwYa1eE1Oa2wB8s_buO7btGtQQk',
+ run:'https://cdn.viggle.ai/3d-editor-assets/15beccf3-c030-4b5b-af3d-00e3dc6d2f0a_Running.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=U33mTDkWMNW46NV983Zz84DTB28',
+ jump:'https://cdn.viggle.ai/3d-editor-assets/51e2faff-6851-496a-9d23-40e34a865064_Jump.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=aJeUZ1cJTgW3V-EJwBQg4Q5QU-o'
+};
+// GitHub Pages cannot construct a Worker directly from esm.sh's cross-origin URL.
+// Use a same-origin Blob module as a loader; the actual worker module stays hosted by esm.sh.
+const NativeWorker = window.Worker;
+window.Worker = class SameOriginWorker extends NativeWorker {
+  constructor(scriptURL, options = {}) {
+    const raw = String(scriptURL);
+    let parsed;
+    try { parsed = new URL(raw, location.href); } catch {}
+    if (parsed && parsed.origin !== location.origin && /^https?:$/.test(parsed.protocol)) {
+      const blob = new Blob([`import ${JSON.stringify(parsed.href)};\n`], { type: 'text/javascript' });
+      const localURL = URL.createObjectURL(blob);
+      super(localURL, { ...options, type: 'module' });
+      this.addEventListener('error', () => URL.revokeObjectURL(localURL), { once: true });
+      return;
+    }
+    super(scriptURL, options);
+  }
+};
+
+let scene,character,OrbitControls, keys={}, held={}, yaw=0, pitch=12, sprint=false, y=0, vy=0, onGround=true, moveTimer=0, last=performance.now();
+function fail(e){console.error(e);$('loading').classList.remove('hidden');message.textContent='The real 3D preview failed to initialize.';error.textContent=(e?.stack||e?.message||String(e));state.textContent='3D LOAD ERROR';}
+try{
+ message.textContent='Importing the real Viggle Splat Engine…';
+ const E=await import('@viggle/splat-engine');
+ const canvas=document.createElement('canvas');canvas.id='renderCanvas';$('game').appendChild(canvas);
+ scene=await E.Scene.create(canvas,{fov:45,depth:true});
+ scene.start();
+ const controls=new E.OrbitControls({distance:4.8,pitch:12,target:{x:0,y:0.9,z:0}});
+ controls.attach({canvas,cameraEntity:scene.cameraEntity});
+ scene.app.on('update',()=>controls.update());
+ try{E.SkyDome?.create(scene,{topColor:'#9dc8df',bottomColor:'#e7e2d4'});E.Grid?.create(scene)}catch{}
+ message.textContent='Loading Urban Explorer Gaussian-splat character…';
+ character=await E.Character.load(scene,ASSET.character);
+ message.textContent='Loading real PINOC skeletal clips…';
+ await Promise.all([
+  E.Animation.loadGlb(scene,ASSET.idle,'idle'),
+  E.Animation.loadGlb(scene,ASSET.walk,'walk'),
+  E.Animation.loadGlb(scene,ASSET.run,'run'),
+  E.Animation.loadGlb(scene,ASSET.jump,'jump')
+ ]);
+ character.playAnimation('idle',{loop:true});
+ $('loading').classList.add('hidden');state.textContent='REAL PINOC CHARACTER LOADED · IDLE';
+ const play=name=>{try{character.crossfadeTo(name,{duration:.22,loop:name!=='jump'})}catch(e){console.warn(e)}};
+ const action=(id,name)=>$(id).addEventListener('click',()=>{play(name);state.textContent='REAL ANIMATION · '+name.toUpperCase()});
+ action('idle','idle');
+ $('jump').addEventListener('click',()=>{if(onGround){vy=5.5;onGround=false;play('jump');state.textContent='JUMP'}})
+ $('sprint').addEventListener('click',()=>{sprint=!sprint;$('sprint').classList.toggle('active',sprint);state.textContent=sprint?'SPRINT · REAL RUN CLIP':'WALK · REAL WALK CLIP';play(sprint?'run':'walk')});
+ $('reset').addEventListener('click',()=>{y=0;vy=0;onGround=true;yaw=0;pitch=12;controls.distance=4.8;play('idle');state.textContent='RESET · IDLE'});
+ document.querySelectorAll('[data-m]').forEach(b=>{const n=b.dataset.m;b.addEventListener('pointerdown',e=>{e.preventDefault();held[n]=true;b.classList.add('active');play(sprint?'run':'walk');state.textContent='MOVE · '+n.toUpperCase()});for(const ev of ['pointerup','pointercancel','lostpointercapture'] )b.addEventListener(ev,()=>{held[n]=false;b.classList.remove('active');if(!Object.values(held).some(Boolean)){play('idle');state.textContent='IDLE'}})});
+ addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();$('jump').click()}if(e.key==='Shift'){sprint=true;play('run')}});
+ addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;if(e.key==='Shift'){sprint=false;play('idle')}});
+ // Keep player movement lightweight until a measured collision environment is supplied.
+ scene.app.on('update',dt=>{const f=(held.forward||keys.w||keys.arrowup?1:0)-(held.back||keys.s||keys.arrowdown?1:0),s=(held.right||keys.d||keys.arrowright?1:0)-(held.left||keys.a||keys.arrowleft?1:0);if(f||s){moveTimer+=dt;state.textContent=sprint?'SPRINT · REAL RUN CLIP':'MOVING · '+(s?'STRAFE':'FORWARD')}if(!onGround){vy-=15*dt;y+=vy*dt;if(y<=0){y=0;vy=0;onGround=true;play('idle');state.textContent='LANDED'}}});
+}catch(e){fail(e)}
 </script></body></html>
