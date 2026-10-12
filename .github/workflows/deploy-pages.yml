@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'pinoc-world.html'
       - 'area-01-preview.html'
       - 'fresh-world-3d.html'
       - 'public/**'
