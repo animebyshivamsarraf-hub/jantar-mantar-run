@@ -67,3 +67,10 @@
 - Also smoke-tested `fresh-world-3d.html` on mobile Chromium: page title and movement/quality controls responded, with no console/page errors.
 - Current hosted 3D Jutsu project is revision 7 with 663 scene objects (599 meshes), one delivery camera, and two lights. A 640×360 render operation succeeded; the interactive scene review link is below.
 - Remaining real work: PINOC Gaussian-splat environments and the rigged PINOC character/running motion are not imported into the browser runtime, and no Android APK exists. Those require a durable asset transfer/compatible splat renderer and real-device performance validation. The environment is still procedural/reference-guided, not survey-accurate.
+
+
+## 2026-10-12 — Full 3D Jutsu scene browser preview
+- Exported the committed 3D Jutsu revision 7 GLB into a stable hosted archive and added `jantar-world-3d.html` to the existing repository. The page fetches the archive, unpacks the GLB in-browser, and provides orbit, pan, zoom and reset-camera controls.
+- Linked the full-world viewer from the game's start screen and README. Browser smoke test on the deployed page loaded revision 7 and reported 660 GLTF mesh objects with no console/page errors.
+- Viewer URL: https://animebyshivamsarraf-hub.github.io/jantar-mantar-run/jantar-world-3d.html
+- This provides a browser-inspectable export of the 3D Jutsu world, but it is a separate scene viewer—not yet the endless-runner's live game world. PINOC character and running-motion files have been transferred to a stable asset archive for integration testing, but they are not yet animated in the gameplay runtime. The correct web Splat Engine still needs to be bundled with its worker assets and integrated/tested without breaking the existing Three.js game.
