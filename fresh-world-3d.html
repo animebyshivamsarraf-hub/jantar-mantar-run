@@ -9,7 +9,7 @@
 </head>
 <body>
 <div id="loading" class="status">Building the fresh 3D world…<br><small>Requires WebGL and an internet connection for Three.js.</small></div>
-<div class="hud"><div class="top"><div class="chip">JMR · FRESH 3D WORLD</div><div class="chip" id="coords">MODULE A · WALK MODE</div></div><div class="note"><b>Real 3D geometry prototype</b><br>Road, pavements, buildings, trees, barriers and bus are separate meshes—not a blurry panorama. Drag to look; use the pad to move.</div><div class="controls"><div class="pad"><span></span><button class="btn" id="forward">▲</button><span></span><button class="btn" id="left">◀</button><button class="btn" id="back">▼</button><button class="btn" id="right">▶</button></div><div class="side"><button class="btn" id="reset">RESET VIEW</button><button class="btn" id="quality">QUALITY: HIGH</button></div></div><div class="toast">Prototype geometry · not a surveyed exact scan</div></div>
+<div class="hud"><div class="top"><div class="chip">JMR · FRESH 3D WORLD</div><div class="chip" id="coords">MODULE A · WALK MODE</div></div><div class="note"><b>JANTAR MANTAR RUN · THIRD-PERSON</b><br>Indian playable character · ground movement · jump · sprint · collision-safe world. Drag the screen to rotate the camera. Keyboard: WASD / arrows, Space jump, Shift sprint.</div><div class="controls"><div class="pad"><span></span><button class="btn" id="forward">▲</button><span></span><button class="btn" id="left">◀</button><button class="btn" id="back">▼</button><button class="btn" id="right">▶</button></div><div class="side"><button class="btn" id="jump">JUMP</button><button class="btn" id="sprint">SPRINT: OFF</button><button class="btn" id="reset">RESET</button><button class="btn" id="quality">QUALITY: HIGH</button></div></div><div class="toast">Prototype geometry · not a surveyed exact scan</div></div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 const loading=document.querySelector('#loading');
@@ -59,15 +59,50 @@ for(const x of [-.8,.8]){box(bus,mat(0xf4e5bb),x,1.25,4.27,.38,.22,.05);box(bus,
 // Jantar Mantar-inspired ochre-red geometric landmark, as separate solid meshes.
 function landmark(x,z,s=1){const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);world.add(g);box(g,red,0,1.1,0,4.2,2.2,3.6);box(g,cream,0,2.24,0,4.35,.15,3.75);box(g,red,0,2.8,0,2.9,1,2.7);box(g,cream,0,3.33,0,3.05,.13,2.85);box(g,red,0,3.75,0,1.25,.75,1.4);cyl(g,cream,0,4.2,0,.12,.2,.25,8);box(g,mat(0x643b2c),0,.85,1.82,1.1,1.35,.05)}
 landmark(-12,-12,1.1);landmark(12,-21,.8);
-// A discreet player guide marker; no malformed generated character is baked into this world.
-const marker=new THREE.Group();scene.add(marker);cyl(marker,mat(0x273e59),0,.52,0,.28,.32,1.04,12);sphere(marker,mat(0x9b694b),0,1.25,0,.25,.28,.25);box(marker,mat(0xd9b36a),0,.84,0,.65,.36,.4);marker.position.set(0,0,5);marker.visible=false;
-let yaw=0,pitch=-.06,move=0,strafe=0,high=true,dragging=false,px=0,py=0;
+// Playable Indian character: head, hair, skin, kurta-style top, trousers, arms and shoes.
+const player=new THREE.Group();scene.add(player);
+const skin=mat(0x9b6546), hair=mat(0x201b18), kurta=mat(0x1d6470), trousers=mat(0x303847), shoes=mat(0x242323), trim=mat(0xd7b36a);
+function limb(parent,m,x,y,z,sx,sy,sz){return box(parent,m,x,y,z,sx,sy,sz)}
+// Character origin is at ground level; every part is built above y=0.
+cyl(player,trousers,0,.78,0,.24,.28,.62,12);
+limb(player,kurta,0,1.23,0,.64,.68,.34);
+limb(player,trim,0,1.02,.18,.52,.055,.025);
+sphere(player,skin,0,1.82,0,.235,.27,.23);
+sphere(player,hair,0,2.02,-.015,.24,.13,.235);
+limb(player,hair,0,1.91,.19,.3,.09,.06);
+const armL=limb(player,kurta,-.39,1.28,0,.18,.55,.2), armR=limb(player,kurta,.39,1.28,0,.18,.55,.2);
+const legL=limb(player,trousers,-.16,.37,0,.2,.55,.23), legR=limb(player,trousers,.16,.37,0,.2,.55,.23);
+limb(player,shoes,-.16,.08,.07,.22,.13,.32);limb(player,shoes,.16,.08,.07,.22,.13,.32);
+player.position.set(0,0,5);player.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+let yaw=0,pitch=-.12,move=0,strafe=0,high=true,dragging=false,px=0,py=0,sprinting=false,verticalVelocity=0,onGround=true,walkTime=0;
+const colliders=[{x:4.2,z:-42,w:3.3,d:9.2}]; // bus body
+function blocked(x,z){if(x < -5.7 || x > 5.7 || z < -158 || z > 15)return true;return colliders.some(c=>Math.abs(x-c.x)<c.w/2+.42 && Math.abs(z-c.z)<c.d/2+.42)}
 function setMove(k,v){if(k==='forward')move=v;if(k==='back')move=-v;if(k==='left')strafe=-v;if(k==='right')strafe=v}
 for(const k of ['forward','back','left','right']){const el=document.getElementById(k);el.addEventListener('pointerdown',e=>{e.preventDefault();el.setPointerCapture(e.pointerId);setMove(k,1)});for(const ev of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(ev,()=>setMove(k,0))}
-renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;px=e.clientX;py=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-px,dy=e.clientY-py;px=e.clientX;py=e.clientY;yaw-=dx*.004;pitch=THREE.MathUtils.clamp(pitch-dy*.003,-.55,.45)});renderer.domElement.addEventListener('pointerup',()=>dragging=false);renderer.domElement.addEventListener('pointercancel',()=>dragging=false);
-document.getElementById('reset').onclick=()=>{camera.position.set(0,2.2,11);yaw=0;pitch=-.06};document.getElementById('quality').onclick=e=>{high=!high;renderer.setPixelRatio(Math.min(devicePixelRatio,high?1.5:1));sun.castShadow=high;e.target.textContent='QUALITY: '+(high?'HIGH':'MOBILE')};
-addEventListener('keydown',e=>{if(['ArrowUp','w','W'].includes(e.key))move=1;if(['ArrowDown','s','S'].includes(e.key))move=-1;if(['ArrowLeft','a','A'].includes(e.key))strafe=-1;if(['ArrowRight','d','D'].includes(e.key))strafe=1});addEventListener('keyup',e=>{if(['ArrowUp','ArrowDown','w','W','s','S'].includes(e.key))move=0;if(['ArrowLeft','ArrowRight','a','A','d','D'].includes(e.key))strafe=0});
-const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));camera.position.addScaledVector(forward,move*dt*8);camera.position.addScaledVector(right,strafe*dt*8);camera.position.x=THREE.MathUtils.clamp(camera.position.x,-5.5,5.5);camera.position.z=THREE.MathUtils.clamp(camera.position.z,-155,13);camera.position.y=THREE.MathUtils.clamp(2.2+pitch*2,1.5,3.5);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;document.getElementById('coords').textContent='X '+camera.position.x.toFixed(1)+'m · Z '+camera.position.z.toFixed(1)+'m';renderer.render(scene,camera)}animate();loading.classList.add('hide');
+renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;px=e.clientX;py=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-px,dy=e.clientY-py;px=e.clientX;py=e.clientY;yaw-=dx*.004;pitch=THREE.MathUtils.clamp(pitch-dy*.003,-.45,.3)});renderer.domElement.addEventListener('pointerup',()=>dragging=false);renderer.domElement.addEventListener('pointercancel',()=>dragging=false);
+function jump(){if(onGround){verticalVelocity=7.1;onGround=false}}
+document.getElementById('jump').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
+document.getElementById('sprint').onclick=e=>{sprinting=!sprinting;e.target.textContent='SPRINT: '+(sprinting?'ON':'OFF')};
+document.getElementById('reset').onclick=()=>{player.position.set(0,0,5);yaw=0;pitch=-.12;verticalVelocity=0;onGround=true};
+document.getElementById('quality').onclick=e=>{high=!high;renderer.setPixelRatio(Math.min(devicePixelRatio,high?1.5:1));sun.castShadow=high;e.target.textContent='QUALITY: '+(high?'HIGH':'MOBILE')};
+const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();jump()}if(e.key==='Shift')sprinting=true});addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;if(e.key==='Shift')sprinting=false});
+const clock=new THREE.Clock();
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
+const f=(move||0)+(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);const side=(strafe||0)+(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
+const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));const speed=(sprinting||keys.shift?10:5.6)*dt;
+let dx=(forward.x*f+right.x*side)*speed,dz=(forward.z*f+right.z*side)*speed;
+const nx=player.position.x+dx,nz=player.position.z+dz;
+if(!blocked(nx,player.position.z))player.position.x=nx;
+if(!blocked(player.position.x,nz))player.position.z=nz;
+const moving=Math.abs(f)+Math.abs(side)>.1;
+if(moving){player.rotation.y=Math.atan2(-dx,-dz);walkTime+=dt*(sprinting?15:10);legL.rotation.x=Math.sin(walkTime)*.45;legR.rotation.x=-Math.sin(walkTime)*.45;armL.rotation.x=-Math.sin(walkTime)*.35;armR.rotation.x=Math.sin(walkTime)*.35}else{legL.rotation.x*=.75;legR.rotation.x*=.75;armL.rotation.x*=.75;armR.rotation.x*=.75}
+verticalVelocity-=18*dt;player.position.y+=verticalVelocity*dt;if(player.position.y<=0){player.position.y=0;verticalVelocity=0;onGround=true}
+const target=new THREE.Vector3(player.position.x,player.position.y+1.25,player.position.z);
+const camDistance=6.8;const desired=new THREE.Vector3(target.x+Math.sin(yaw)*camDistance,target.y+2.1+pitch*3,target.z+Math.cos(yaw)*camDistance);
+camera.position.lerp(desired,1-Math.exp(-dt*7));camera.lookAt(target.x,target.y+.2,target.z);
+document.getElementById('coords').textContent=(sprinting?'SPRINT':'INDIAN PLAYER')+' · X '+player.position.x.toFixed(1)+' · Z '+player.position.z.toFixed(1);
+renderer.render(scene,camera)}
+animate();loading.classList.add('hide');
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 }catch(e){console.error(e);loading.innerHTML='3D world failed to initialise.<br><small>Open this page in Chrome with WebGL enabled, then reload.</small>'}
 </script>
