@@ -4,13 +4,12 @@
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111827;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#stage{position:fixed;inset:0}canvas{touch-action:none}.hud{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 10px max(12px,env(safe-area-inset-bottom))}.top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.pill,.info{background:#101a2be8;border:1px solid #ffffff35;border-radius:13px;padding:9px 11px;font-size:11px;font-weight:850;box-shadow:0 4px 16px #0002}.pill small{display:block;color:#cbd5e1;font-size:9px;font-weight:600}.info{max-width:min(320px,72vw);font-weight:500;line-height:1.4}.bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}.pad{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(2,42px);gap:4px;pointer-events:auto}.btn{border:1px solid #ffffff55;border-radius:13px;background:#101a2beF;color:#fff;font-size:11px;font-weight:900;min-width:46px;min-height:42px;padding:7px;touch-action:none}.btn:active,.btn.active{background:#f5bd3b;color:#172033}.actions{display:flex;flex-direction:column;gap:5px;pointer-events:auto;align-items:stretch}.actions .btn{min-width:92px}.cross{visibility:hidden}.loading{position:fixed;inset:0;background:#101722;display:grid;place-items:center;padding:26px;text-align:center;z-index:5}.loading.hidden{display:none}.panel{max-width:420px}.panel h1{font-size:23px;margin:0 0 10px}.panel p{font-size:13px;line-height:1.55;color:#d5deeb}.bar{height:6px;background:#334155;border-radius:9px;overflow:hidden}.bar i{display:block;width:25%;height:100%;background:#f5bd3b;animation:load 2s infinite alternate}@keyframes load{to{width:90%}}.err{color:#fecaca!important;overflow-wrap:anywhere}@media(min-width:700px){.pad{transform:scale(1.15);transform-origin:bottom left}.actions .btn{min-width:115px}.info{font-size:12px}}
 </style></head><body><div id="stage"></div>
 <div class="hud"><div class="top"><div class="pill">JMR <small>ORIGINAL PINOC WORLD</small></div><div class="pill" id="readout">LOADING WORLD…</div></div><div class="info" id="hint">Loading your original Gaussian-splat world. The character and controls are being placed inside that same environment.</div><div class="bottom"><div class="pad"><button class="btn cross">.</button><button class="btn" data-move="forward">▲</button><button class="btn cross">.</button><button class="btn" data-move="left">◀</button><button class="btn" data-move="back">▼</button><button class="btn" data-move="right">▶</button></div><div class="actions"><button class="btn" id="jump">JUMP</button><button class="btn" id="run">SPRINT: OFF</button><button class="btn" id="reset">RESET</button><button class="btn" id="camera">CAMERA: FOLLOW</button></div></div></div>
-<div id="loading" class="loading"><div class="panel"><h1>Loading the original 3D world</h1><p>Downloading the PINOC Master Environment and preparing the playable character. First load may take a while on mobile data.</p><div class="bar"><i></i></div><p id="status">Starting 3D renderer…</p><p id="err" class="err"></p></div></div>
+<div id="loading" class="loading"><div class="panel"><h1>Loading the original 3D world</h1><p>Load the exact environment file you just sent. On your phone, choose the downloaded <b>.spz</b> file below. No substitute map will be generated.</p><label class="btn" for="worldFile" style="display:inline-block;cursor:pointer;margin:8px 0;padding:12px 16px">LOAD YOUR SPZ ENVIRONMENT</label><input id="worldFile" type="file" accept=".spz,application/octet-stream" style="display:none"><div class="bar"><i></i></div><p id="status">Waiting for your environment file…</p><p id="err" class="err"></p></div></div>
 <script type="module">
 import * as THREE from 'https://esm.sh/three@0.160.0';
 import * as GS from 'https://esm.sh/@mkkellogg/gaussian-splats-3d@0.4.7?external=three';
-// This is the user's existing PINOC master environment, not a newly generated map.
-// PINOC signed CDN links expire; the current source URL must be refreshed from the asset library when it expires.
-const WORLD_URL='https://cdn.viggle.ai/3d-editor-assets/environments/b7a4ff75-5735-42f7-86a6-651ea1101b2b/iter/0/normalised.spz?Expires=1791817200&KeyName=vigglecloudcdn2&Signature=5Y_jHfucGJHoDkMtZ_zgsouukf0';
+// The user-supplied SPZ is selected locally so the game never depends on an expiring signed CDN URL.
+let WORLD_URL=null; let worldObjectUrl=null;
 const $=id=>document.getElementById(id);
 const stage=$('stage'),status=$('status'),err=$('err'),hint=$('hint'),readout=$('readout');
 const scene=new THREE.Scene();
@@ -63,10 +62,22 @@ viewer.update?.();viewer.render?.()
 }
 try{
 status.textContent='Preparing Gaussian-splat renderer…';
-viewer=new GS.Viewer({rootElement:stage,threeScene:scene,camera,initialCameraPosition:[0,3.3,10],initialCameraLookAt:[0,1,0],useBuiltInControls:false, selfDrivenMode:false, gpuAcceleratedSort:true, sharedMemoryForWorkers:false, ignoreDevicePixelRatio:false, renderMode:GS.RenderMode?.Always});
-status.textContent='Loading original PINOC master environment…';
-await viewer.addSplatScene(WORLD_URL,{format:GS.SceneFormat?.SPZ,position:[0,0,0],rotation:[0,0,0,1],scale:[1,1,1],splatAlphaRemovalThreshold:1,showLoadingUI:false,progressiveLoad:true,onProgress:(p,label)=>{status.textContent='Loading original world… '+(label||'')+' '+(p??'')}})
-viewer.start?.();$('loading').classList.add('hidden');hint.textContent='Original PINOC world loaded. Hold the arrows or use WASD to move; drag the screen to rotate the follow camera. Jump and sprint are available. Collision is still a gameplay approximation because Gaussian splats do not contain solid collision meshes.';requestAnimationFrame(animate);
-}catch(e){console.error(e);status.textContent='World failed to load.';err.textContent=(e?.message||String(e))+' — the PINOC CDN link may have expired. Refresh the master environment URL from PINOC, then update WORLD_URL.';hint.textContent='The original map could not be loaded. No replacement map will be generated.'}
+viewer=new GS.Viewer({rootElement:stage,threeScene:scene,camera,initialCameraPosition:[0,3.3,10],initialCameraLookAt:[0,1,0],useBuiltInControls:false,selfDrivenMode:false,gpuAcceleratedSort:true,sharedMemoryForWorkers:false,ignoreDevicePixelRatio:false,renderMode:GS.RenderMode?.Always});
+viewer.start?.();
+$('worldFile').addEventListener('change',async e=>{
+ const file=e.target.files?.[0]; if(!file)return;
+ if(!file.name.toLowerCase().endsWith('.spz')){err.textContent='Please choose the .spz environment file.';return}
+ try{
+  err.textContent='';status.textContent='Reading '+file.name+' ('+(file.size/1048576).toFixed(1)+' MB)…';
+  if(worldObjectUrl)URL.revokeObjectURL(worldObjectUrl);
+  worldObjectUrl=URL.createObjectURL(file);WORLD_URL=worldObjectUrl;
+  await viewer.addSplatScene(WORLD_URL,{format:GS.SceneFormat?.SPZ,position:[0,0,0],rotation:[0,0,0,1],scale:[1,1,1],splatAlphaRemovalThreshold:1,showLoadingUI:false,progressiveLoad:true,onProgress:(p,label)=>{status.textContent='Loading your exact environment… '+(label||'')+' '+(p??'')}});
+  $('loading').classList.add('hidden');
+  hint.textContent='Your selected SPZ environment is loaded. Use the arrows or WASD to move, drag to rotate the camera, and use jump/sprint. Ground collision remains approximate unless a separate collision mesh is provided.';
+  requestAnimationFrame(animate);
+ }catch(ex){console.error(ex);status.textContent='Environment could not be loaded.';err.textContent=(ex?.message||String(ex))+' — check that this is a valid SPZ file and retry.'}
+});
+status.textContent='Renderer ready. Tap LOAD YOUR SPZ ENVIRONMENT to choose the file.';
+}catch(e){console.error(e);status.textContent='3D renderer failed to start.';err.textContent=e?.message||String(e)}
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();if(viewer?.renderer)viewer.renderer.setSize(innerWidth,innerHeight)});
 </script></body></html>
