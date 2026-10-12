@@ -2,7 +2,7 @@
 
 A mobile-first, third-person 3D endless runner set in a fictional Delhi streetscape. Dodge traffic and barricades while police officers chase the player.
 
-> **Current status:** concept and production documentation are being collected here. The repository is not yet a playable game, and the uploaded FBX still needs to be added through a binary-safe upload route and checked in Unity.
+`index.html` is a playable browser prototype with a protest-area opening, touch/keyboard controls, lane movement, jump/slide, obstacles, a chase loop, and restart. The current scene includes procedural landmark-inspired geometry for the Samrat Yantra, Jai Prakash Yantra and Ram Yantra forms. It is **not** a sem-to-sem reconstruction and has not been verified as a production or Android build. The PINOC Gaussian-splat environments and rigged character/motion assets are not yet loaded into this runtime.
 
 ## Project decisions so far
 - **Game type:** third-person, three-lane endless runner.
@@ -21,6 +21,8 @@ A mobile-first, third-person 3D endless runner set in a fictional Delhi streetsc
 - [Visual direction / art bible](Documentation/VISUAL_DIRECTION.md)
 - [Work log and asset status](Documentation/WORK_LOG.md)
 - [World asset assembly pipeline](Documentation/WORLD_ASSET_PIPELINE.md)
+- [Open the browser prototype](https://animebyshivamsarraf-hub.github.io/jantar-mantar-run/)
+- [Open the 3D Jutsu source scene](https://higgsfield.ai/3d-jutsu/a500419b-8e26-4837-bba6-f1911675b305)
 
 ## Planned Unity layout
 ```text
@@ -41,6 +43,6 @@ Documentation/
 2. Import it into Unity and inspect scale, orientation, mesh, materials, rig and colliders.
 3. Build a playable greybox with three lanes, camera follow, movement, obstacles, coins and restart.
 4. Replace greybox elements with licensed/generated visuals and test on Android.
-5. Only then decide whether a browser build is viable.
+5. Keep the browser prototype as the quick review build while the PINOC SPZ transfer path and real Android build are completed.
 
 Use only assets you created or have permission to use. A public repository exposes its contents to everyone; the MIT license does not automatically relicense third-party assets.
