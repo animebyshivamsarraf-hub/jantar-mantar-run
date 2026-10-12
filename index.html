@@ -13,7 +13,24 @@ let WORLD_URL=null; let worldObjectUrl=null;
 const $=id=>document.getElementById(id);
 const stage=$('stage'),status=$('status'),err=$('err'),hint=$('hint'),readout=$('readout');
 const scene=new THREE.Scene();
+// Collision-support base: a real Three.js mesh beneath the scanned SPZ visuals.
+// The splat remains the original visual environment; this plane is a fallback floor,
+// not a substitute for a measured terrain collision mesh.
 scene.add(new THREE.HemisphereLight(0xffffff,0x66594a,2));
+const floorCanvas=document.createElement('canvas');floorCanvas.width=512;floorCanvas.height=512;
+const floorCtx=floorCanvas.getContext('2d');
+floorCtx.fillStyle='#5a554b';floorCtx.fillRect(0,0,512,512);
+let floorSeed=81273;const rand=()=>{floorSeed=(floorSeed*1664525+1013904223)>>>0;return floorSeed/4294967296};
+for(let i=0;i<14000;i++){const v=rand();floorCtx.fillStyle=v>.5?'rgba(210,195,165,.10)':'rgba(20,24,24,.13)';const r=.3+rand()*2.1;floorCtx.fillRect(rand()*512,rand()*512,r,r)}
+const floorTexture=new THREE.CanvasTexture(floorCanvas);floorTexture.wrapS=floorTexture.wrapT=THREE.RepeatWrapping;floorTexture.repeat.set(8,24);floorTexture.colorSpace=THREE.SRGBColorSpace;
+const baseFloor=new THREE.Mesh(new THREE.PlaneGeometry(80,280),new THREE.MeshStandardMaterial({map:floorTexture,color:0xffffff,roughness:1,metalness:0}));
+baseFloor.rotation.x=-Math.PI/2;baseFloor.position.set(0,-0.12,-45);baseFloor.receiveShadow=true;scene.add(baseFloor);
+const roadCanvas=document.createElement('canvas');roadCanvas.width=256;roadCanvas.height=512;
+const roadCtx=roadCanvas.getContext('2d');roadCtx.fillStyle='#343638';roadCtx.fillRect(0,0,256,512);
+for(let i=0;i<5000;i++){const v=rand();roadCtx.fillStyle=v>.5?'rgba(210,210,200,.07)':'rgba(0,0,0,.12)';roadCtx.fillRect(rand()*256,rand()*512,.5+rand()*1.8,.5+rand()*1.8)}
+const roadTexture=new THREE.CanvasTexture(roadCanvas);roadTexture.wrapS=roadTexture.wrapT=THREE.RepeatWrapping;roadTexture.repeat.set(1,18);roadTexture.colorSpace=THREE.SRGBColorSpace;
+const fallbackRoad=new THREE.Mesh(new THREE.PlaneGeometry(9,280),new THREE.MeshStandardMaterial({map:roadTexture,roughness:.96,metalness:0}));
+fallbackRoad.rotation.x=-Math.PI/2;fallbackRoad.position.set(0,-0.055,-45);fallbackRoad.receiveShadow=true;scene.add(fallbackRoad);
 const sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(-8,15,8);scene.add(sun);
 const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,500);camera.position.set(0,3.3,10);
 let viewer;
