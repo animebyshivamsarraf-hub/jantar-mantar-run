@@ -11,11 +11,13 @@
 <script type="module">
 const $=id=>document.getElementById(id), state=$('state'), message=$('message'), error=$('error');
 const ASSET={
- character:'https://cdn.viggle.ai/multiview/2861116e-69f6-4205-a20a-afe8fc436744_generated/9be833f114d2/gpt-image2/front_static.performance.vsplat?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=iMkkqhr3tMVCmWSQIArAPAI5tRM',
+ character:'https://cdn.viggle.ai/multiview/2861116e-69f6-4205-a20a-afe8fc436744_generated/9be833f114d2/gpt-image2/front_static.performance.vsplat?Expires=1791817200&KeyName=vigglecloudcdn2&Signature=iMkkqhr3tMVCmWSQIArAPAI5tRM',
  idle:'https://cdn.viggle.ai/3d-editor-assets/b17fe31f-292a-49ab-83f2-64f1290a45a1_Standing_Idle.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=yrWRx8Km0NFaO7ZMw1l9Olb-BHg',
  walk:'https://cdn.viggle.ai/3d-editor-assets/45a5bd7d-700f-4041-9dbc-6e4dcffcd954_Walking.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=zwYa1eE1Oa2wB8s_buO7btGtQQk',
- run:'https://cdn.viggle.ai/3d-editor-assets/15beccf3-c030-4b5b-af3d-00e3dc6d2f0a_Running.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=U33mTDkWMNW46NV983Zz84DTB28',
- jump:'https://cdn.viggle.ai/3d-editor-assets/51e2faff-6851-496a-9d23-40e34a865064_Jump.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=aJeUZ1cJTgW3V-EJwBQg4Q5QU-o'
+ run:'https://cdn.viggle.ai/3d-editor-assets/15beccf3-c030-4b5b-af3d-00e3dc6d2f0a_Running.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791817200&KeyName=vigglecloudcdn2&Signature=g5n_SzBs3UyFQ7F61nttCdImoGA',
+ sprint:'https://cdn.viggle.ai/3d-editor-assets/28aca544-4a7f-47e3-b75d-596b079f6137_Sprinting_Forward.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791817200&KeyName=vigglecloudcdn2&Signature=nI0YSdDISoK59Jo1CU2X-8_XOL4',
+ vault:'https://cdn.viggle.ai/3d-editor-assets/324c6153-f9a8-4e38-966f-ed667028b5a0_Vault_Over_Obstacle.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791817200&KeyName=vigglecloudcdn2&Signature=9d7Mhxe9KH4iPqJ8W5BBKq7r8Vw',
+ jump:'https://cdn.viggle.ai/3d-editor-assets/51e2faff-6851-496a-9d23-40e34a865064_Jump.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791817200&KeyName=vigglecloudcdn2&Signature=I1J9rWjr_4Kp4v9ah9Q0otcpV2E'
 };
 // GitHub Pages cannot construct a Worker directly from esm.sh's cross-origin URL.
 // Use a same-origin Blob module as a loader; the actual worker module stays hosted by esm.sh.
@@ -67,6 +69,8 @@ try{
   E.Animation.loadGlb(scene,ASSET.idle,'idle'),
   E.Animation.loadGlb(scene,ASSET.walk,'walk'),
   E.Animation.loadGlb(scene,ASSET.run,'run'),
+  E.Animation.loadGlb(scene,ASSET.sprint,'sprint'),
+  E.Animation.loadGlb(scene,ASSET.vault,'vault'),
   E.Animation.loadGlb(scene,ASSET.jump,'jump')
  ]);
  character.playAnimation('idle',{loop:true});
@@ -75,9 +79,9 @@ try{
  const action=(id,name)=>$(id).addEventListener('click',()=>{play(name);state.textContent='REAL ANIMATION · '+name.toUpperCase()});
  action('idle','idle');
  $('jump').addEventListener('click',()=>{if(onGround){vy=5.5;onGround=false;play('jump');state.textContent='JUMP'}})
- $('sprint').addEventListener('click',()=>{sprint=!sprint;$('sprint').classList.toggle('active',sprint);state.textContent=sprint?'SPRINT · REAL RUN CLIP':'WALK · REAL WALK CLIP';play(sprint?'run':'walk')});
+ $('sprint').addEventListener('click',()=>{sprint=!sprint;$('sprint').classList.toggle('active',sprint);state.textContent=sprint?'SPRINT · REAL RUN CLIP':'WALK · REAL WALK CLIP';play(sprint?'sprint':'walk')});
  $('reset').addEventListener('click',()=>{y=0;vy=0;px=0;pz=0;onGround=true;yaw=0;pitch=12;controls.distance=4.8;setPlayerPosition();play('idle');state.textContent='RESET · IDLE'});
- document.querySelectorAll('[data-m]').forEach(b=>{const n=b.dataset.m;b.addEventListener('pointerdown',e=>{e.preventDefault();held[n]=true;b.classList.add('active');play(sprint?'run':'walk');state.textContent='MOVE · '+n.toUpperCase()});for(const ev of ['pointerup','pointercancel','lostpointercapture'] )b.addEventListener(ev,()=>{held[n]=false;b.classList.remove('active');if(!Object.values(held).some(Boolean)){play('idle');state.textContent='IDLE'}})});
+ document.querySelectorAll('[data-m]').forEach(b=>{const n=b.dataset.m;b.addEventListener('pointerdown',e=>{e.preventDefault();held[n]=true;b.classList.add('active');play(sprint?'sprint':'walk');state.textContent='MOVE · '+n.toUpperCase()});for(const ev of ['pointerup','pointercancel','lostpointercapture'] )b.addEventListener(ev,()=>{held[n]=false;b.classList.remove('active');if(!Object.values(held).some(Boolean)){play('idle');state.textContent='IDLE'}})});
  addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();$('jump').click()}if(e.key==='Shift'){sprint=true;play('run')}});
  addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;if(e.key==='Shift'){sprint=false;play('idle')}});
  // Keep player movement lightweight until a measured collision environment is supplied.
