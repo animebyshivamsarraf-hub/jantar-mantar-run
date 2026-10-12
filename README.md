@@ -22,6 +22,7 @@ A mobile-first, third-person 3D endless runner set in a fictional Delhi streetsc
 - [Work log and asset status](Documentation/WORK_LOG.md)
 - [World asset assembly pipeline](Documentation/WORLD_ASSET_PIPELINE.md)
 - [Open the browser prototype](https://animebyshivamsarraf-hub.github.io/jantar-mantar-run/)
+- [Open the full 3D Jutsu world preview](https://animebyshivamsarraf-hub.github.io/jantar-mantar-run/jantar-world-3d.html)
 - [Open the 3D Jutsu source scene](https://higgsfield.ai/3d-jutsu/a500419b-8e26-4837-bba6-f1911675b305)
 
 ## Planned Unity layout
