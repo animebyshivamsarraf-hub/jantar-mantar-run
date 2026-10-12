@@ -47,3 +47,9 @@ Documentation/
 5. Keep the browser prototype as the quick review build while the PINOC SPZ transfer path and real Android build are completed. The current live prototype has been smoke-tested; PINOC asset integration and Android packaging remain open.
 
 Use only assets you created or have permission to use. A public repository exposes its contents to everyone; the MIT license does not automatically relicense third-party assets.
+
+
+## PINOC environment integration
+- [Open PINOC 3D environment viewer](https://animebyshivamsarraf-hub.github.io/jantar-mantar-run/pinoc-world.html)
+- Bundled asset archive: https://d2ol7oe51mr4n9.cloudfront.net/user_3JkuoLy4uHNDjSxNT7XRC1ogkuo/4fe31d28-dbde-49a5-a0c6-f471e586a4b5.zip (road, trees, buildings, observatory, runner character and seven motion GLBs).
+- The PINOC scenes are available in the linked 3D viewer. The original gameplay renderer remains separate; the Gaussian-splat scenes are not yet the active gameplay renderer or animated player rig.
