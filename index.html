@@ -35,7 +35,44 @@ for(let z=4;z>-110;z-=6){const a=cube(loopMarks,yellow,-2,-.005,z,.07,.02,2.6);c
 // opening plaza on near end, walkable ground
 cube(world,mat(0xb8ae96),0,-.28,8,27,.3,24);
 // historic Jantar Mantar inspired ochre-red masonry forms
-function observatory(x,z,s=1){const g=new THREE.Group();g.position.set(x,0,z);world.add(g);cube(g,red,0,1.2,0,4*s,2.4*s,3*s);cube(g,cream,0,2.45*s,0,3.7*s,.18*s,2.8*s);cube(g,red,0,3.1*s,0,2.8*s,1.3*s,2.3*s);cube(g,cream,0,3.78*s,0,3*s,.16*s,2.5*s);cube(g,red,0,4.1*s,0,1.4*s,.7*s,1.3*s);cylinder(g,cream,0,4.65*s,0,.12*s,.18*s,.5*s,8)}
+function observatory(x,z,s=1){
+ const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);world.add(g);
+ const localCube=(m,px,py,pz,sx,sy,sz)=>cube(g,m,px,py,pz,sx,sy,sz);
+ const tickMat=mat(0x7a4a35), paleStone=mat(0xd8c9ad), sandstone=mat(0xa84c32);
+ if(x<0 && z>-30){
+   // Samrat Yantra-inspired monumental triangular gnomon, on a stone plinth.
+   localCube(paleStone,0,.25,0,8.2,.5,10.8);
+   localCube(sandstone,0,.53,0,7.8,.12,10.4);
+   const shape=new THREE.Shape();shape.moveTo(-3.35,.62);shape.lineTo(3.35,.62);shape.lineTo(0,7.2);shape.closePath();
+   const geo=new THREE.ExtrudeGeometry(shape,{depth:.95,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.07,bevelThickness:.05});
+   const gnomon=new THREE.Mesh(geo,mat(0xb75d3d));gnomon.position.set(0,0,-.48);gnomon.castShadow=true;gnomon.receiveShadow=true;g.add(gnomon);
+   // Thin ochre slope edges and graduated ticks make the instrument read as an observatory.
+   const edgeMat=mat(0x783b2c);
+   function line(a,b,r=.045,m=edgeMat){const d=new THREE.Vector3(...b).sub(new THREE.Vector3(...a));const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),8),m);o.position.copy(new THREE.Vector3(...a).add(new THREE.Vector3(...b)).multiplyScalar(.5));o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());g.add(o)}
+   line([-3.25,.72,.55],[0,7.08,.55]);line([0,7.08,.55],[3.25,.72,.55]);
+   for(let i=0;i<15;i++)localCube(tickMat,3.62,.69,-4.8+i*.68,.22,.035,.035);
+   for(let i=0;i<6;i++){const y=.9+i*.68;localCube(paleStone,-3.85,y,-2.8+i*.82,1.0,.16,.8);}
+ } else if(x>0){
+   // Jai Prakash Yantra-inspired concave bowl, with concentric and radial scale marks.
+   const radius=3.55, rings=15, segments=64, verts=[], faces=[];
+   for(let ri=0;ri<=rings;ri++){const rr=.18+(radius-.18)*ri/rings;const yy=.38+1.72*Math.pow(rr/radius,1.55);for(let j=0;j<segments;j++){const a=2*Math.PI*j/segments;verts.push([rr*Math.cos(a),yy,rr*Math.sin(a)])}}
+   for(let ri=0;ri<rings;ri++)for(let j=0;j<segments;j++){const a=ri*segments+j,b=ri*segments+(j+1)%segments;faces.push([a,b,(ri+1)*segments+(j+1)%segments,(ri+1)*segments+j])}
+   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts.flat(),3));geo.setIndex(faces.flat());geo.computeVertexNormals();
+   const bowl=new THREE.Mesh(geo,paleStone);bowl.castShadow=true;bowl.receiveShadow=true;g.add(bowl);
+   const base=cylinder(g,sandstone,0,.22,0,radius+.28,radius+.28,.3,48);
+   const rim=new THREE.Mesh(new THREE.TorusGeometry(radius,.09,8,64),mat(0xb65d3d));rim.rotation.x=Math.PI/2;rim.position.y=2.1;g.add(rim);
+   for(let ri=3;ri<15;ri+=3){const rr=.18+(radius-.18)*ri/rings;const yy=.38+1.72*Math.pow(rr/radius,1.55)+.025;const pts=[];for(let j=0;j<=96;j++){const a=2*Math.PI*j/96;pts.push(new THREE.Vector3(rr*Math.cos(a),yy,rr*Math.sin(a)))}const curve=new THREE.CatmullRomCurve3(pts);const mark=new THREE.Mesh(new THREE.TubeGeometry(curve,96,.018,5,false),tickMat);g.add(mark)}
+   for(let j=0;j<24;j++){const a=2*Math.PI*j/24,pts=[];for(let k=0;k<20;k++){const rr=.25+(radius-.25)*k/19;pts.push(new THREE.Vector3(rr*Math.cos(a),.4+1.72*Math.pow(rr/radius,1.55),rr*Math.sin(a)))}g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),20,.015,4,false),tickMat))}
+ } else {
+   // Ram Yantra-inspired circular instrument wall, with a walkable inner floor and radial scales.
+   const outer=3.25,inner=2.7,height=2.75,segments=64,verts=[],faces=[];
+   for(const y of [.2,height])for(const r of [inner,outer])for(let i=0;i<segments;i++){const a=2*Math.PI*i/segments;verts.push([r*Math.cos(a),y,r*Math.sin(a)])}
+   for(let i=0;i<segments;i++){const j=(i+1)%segments;faces.push([segments+i,segments+j,3*segments+j,3*segments+i],[i,j,2*segments+j,2*segments+i],[2*segments+i,2*segments+j,3*segments+j,3*segments+i],[i,segments+i,segments+j,j])}
+   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts.flat(),3));geo.setIndex(faces.flat());geo.computeVertexNormals();const wall=new THREE.Mesh(geo,sandstone);wall.castShadow=true;wall.receiveShadow=true;g.add(wall);
+   cylinder(g,paleStone,0,.18,0,inner,inner,.18,48);
+   for(let i=0;i<24;i++){const a=2*Math.PI*i/24;const line=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,inner-.35,5),tickMat);line.position.set(Math.cos(a)*(inner-.35)/2,.29,Math.sin(a)*(inner-.35)/2);line.rotation.z=Math.PI/2;line.rotation.y=-a;g.add(line);localCube(tickMat,inner*Math.cos(a),1.45,inner*Math.sin(a),.07,1.2,.07)}
+ }
+}
 observatory(-12,-13,1.3);observatory(12,-24,.9);observatory(-12,-44,.8);
 // city blocks and trees
 function tree(x,z){cylinder(world,mat(0x6a4a32),x,.8,z,.18,.25,1.6);const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.25,1),leaf);crown.position.set(x,2.25,z);crown.castShadow=true;world.add(crown);const crown2=new THREE.Mesh(new THREE.IcosahedronGeometry(.85,1),green);crown2.position.set(x+.45,2.8,z+.2);world.add(crown2)}
