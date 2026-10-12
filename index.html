@@ -156,7 +156,8 @@ locationBoard(-5.5,-76,'JANPATH','ROUTE MARKER / मार्ग');
 // traffic and obstacles spawn ahead
 const obstacles=[];function spawnObstacle(z){const lane=[-3.6,0,3.6][Math.floor(Math.random()*3)],kind=Math.random();let o;if(kind<.34){o=new THREE.Group();cube(o,mat(0xb62f29),0,.8,0,2.1,1.5,3.2);cube(o,mat(0xe5d5a0),0,1.35,1.62,1.5,.25,.03);cube(o,mat(0x7da6b3),-.65,1.85,1.63,.5,.42,.04);cube(o,mat(0x7da6b3),.65,1.85,1.63,.5,.42,.04)}else if(kind<.7){o=new THREE.Group();cube(o,mat(0xe5e0cf),0,.55,0,1.6,1,.3);cube(o,red,0,.55,-.18,1.65,.35,.12)}else{o=new THREE.Group();cube(o,mat(0xd4d7d6),0,.6,0,1.6,1.1,.25);cube(o,red,0,.6,-.16,1.7,.3,.05)}o.position.set(lane,0,z);scene.add(o);obstacles.push({mesh:o,lane,kind:kind<.34?'bus':kind<.7?'barrier':'block',passed:false})}
 for(let i=0;i<9;i++)spawnObstacle(-25-i*12);
-const cops=[];function police(z){const p=person(scene,0,z,0x243f76,1.05);cube(p,mat(0x17263c),0,1.9,0,.42,.13,.38);cops.push(p);return p}for(let i=0;i<3;i++)police(9+i*1.5);
+const cops=[];function police(z){const p=person(scene,0,z,0x243f76,1.05);cube(p,mat(0x17263c),0,1.9,0,.42,.13,.38);cops.push(p);return p}// Start police well behind the player; positive-Z motion then closes the gap during the chase.
+for(let i=0;i<3;i++)police(-32-i*7);
 let mode='intro',lane=1,worldSpeed=0,elapsed=0,dist=0,jump=0,slide=0,protestTime=0,policeHeat=0,lastSpawn=-130,toastTimer=0;
 const $=id=>document.getElementById(id);function toast(t){$('toast').textContent=t;$('toast').classList.add('show');toastTimer=2}
 function begin(){mode='explore';$('overlay').classList.add('hidden');$('help').textContent='Explore the open protest zone. Tap ✊ to trigger the protest and start the chase.';toast('Explore the protest area!')}
