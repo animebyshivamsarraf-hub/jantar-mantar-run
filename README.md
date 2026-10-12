@@ -2,7 +2,7 @@
 
 A mobile-first, third-person 3D endless runner set in a fictional Delhi streetscape. Dodge traffic and barricades while police officers chase the player.
 
-`index.html` is a playable browser prototype with a protest-area opening, touch/keyboard controls, lane movement, jump/slide, obstacles, a chase loop, and restart. The current scene includes procedural landmark-inspired geometry for the Samrat Yantra, Jai Prakash Yantra and Ram Yantra forms. It is **not** a sem-to-sem reconstruction and has not been verified as a production or Android build. The PINOC Gaussian-splat environments and rigged character/motion assets are not yet loaded into this runtime.
+`index.html` is a playable browser prototype with a protest-area opening, touch/keyboard controls, lane movement, jump/slide, obstacles, a chase loop, and restart. The current scene includes procedural landmark-inspired geometry for the Samrat Yantra, Jai Prakash Yantra and Ram Yantra forms. The live browser prototype was smoke-tested in mobile-sized Chromium on 2026-10-12, including the start/protest chase, movement controls, HUD, detention and restart. It is **not** a sem-to-sem reconstruction, production QA pass, or Android build. The PINOC Gaussian-splat environments and rigged character/motion assets are not yet loaded into this runtime.
 
 ## Project decisions so far
 - **Game type:** third-person, three-lane endless runner.
@@ -43,6 +43,6 @@ Documentation/
 2. Import it into Unity and inspect scale, orientation, mesh, materials, rig and colliders.
 3. Build a playable greybox with three lanes, camera follow, movement, obstacles, coins and restart.
 4. Replace greybox elements with licensed/generated visuals and test on Android.
-5. Keep the browser prototype as the quick review build while the PINOC SPZ transfer path and real Android build are completed.
+5. Keep the browser prototype as the quick review build while the PINOC SPZ transfer path and real Android build are completed. The current live prototype has been smoke-tested; PINOC asset integration and Android packaging remain open.
 
 Use only assets you created or have permission to use. A public repository exposes its contents to everyone; the MIT license does not automatically relicense third-party assets.
