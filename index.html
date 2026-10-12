@@ -38,7 +38,7 @@ window.Worker = class SameOriginWorker extends NativeWorker {
   }
 };
 
-let scene,character,OrbitControls, keys={}, held={}, yaw=0, pitch=12, sprint=false, y=0, vy=0, onGround=true, moveTimer=0, last=performance.now(), px=0, pz=0, currentClip='idle';
+let scene,character,controls,OrbitControls, keys={}, held={}, yaw=0, pitch=12, sprint=false, y=0, vy=0, onGround=true, moveTimer=0, last=performance.now(), px=0, pz=0, currentClip='idle';
 function setPlayerPosition(){
   // Character exposes its PlayCanvas entity; keep movement in world space.
   const entity=character?.entity || character?.root || character?.node;
@@ -58,7 +58,7 @@ try{
  const canvas=document.createElement('canvas');canvas.id='renderCanvas';$('game').appendChild(canvas);
  scene=await E.Scene.create(canvas,{fov:45,depth:true});
  scene.start();
- const controls=new E.OrbitControls({distance:4.8,pitch:12,target:{x:0,y:0.9,z:0}});
+ controls=new E.OrbitControls({distance:4.8,pitch:12,target:{x:0,y:0.9,z:0}});
  controls.attach({canvas,cameraEntity:scene.cameraEntity});
  scene.app.on('update',()=>controls.update());
  try{E.SkyDome?.create(scene,{topColor:'#9dc8df',bottomColor:'#e7e2d4'});E.Grid?.create(scene)}catch{}
