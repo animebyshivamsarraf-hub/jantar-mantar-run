@@ -56,7 +56,7 @@ function observatory(x,z,s=1){
    // Jai Prakash Yantra-inspired concave bowl, with concentric and radial scale marks.
    const radius=3.55, rings=15, segments=64, verts=[], faces=[];
    for(let ri=0;ri<=rings;ri++){const rr=.18+(radius-.18)*ri/rings;const yy=.38+1.72*Math.pow(rr/radius,1.55);for(let j=0;j<segments;j++){const a=2*Math.PI*j/segments;verts.push([rr*Math.cos(a),yy,rr*Math.sin(a)])}}
-   for(let ri=0;ri<rings;ri++)for(let j=0;j<segments;j++){const a=ri*segments+j,b=ri*segments+(j+1)%segments;faces.push([a,b,(ri+1)*segments+(j+1)%segments,(ri+1)*segments+j])}
+   for(let ri=0;ri<rings;ri++)for(let j=0;j<segments;j++){const a=ri*segments+j,b=ri*segments+(j+1)%segments,d=(ri+1)*segments+j,cc=(ri+1)*segments+(j+1)%segments;faces.push([a,b,cc,a,cc,d])}
    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts.flat(),3));geo.setIndex(faces.flat());geo.computeVertexNormals();
    const bowl=new THREE.Mesh(geo,paleStone);bowl.castShadow=true;bowl.receiveShadow=true;g.add(bowl);
    const base=cylinder(g,sandstone,0,.22,0,radius+.28,radius+.28,.3,48);
@@ -67,7 +67,7 @@ function observatory(x,z,s=1){
    // Ram Yantra-inspired circular instrument wall, with a walkable inner floor and radial scales.
    const outer=3.25,inner=2.7,height=2.75,segments=64,verts=[],faces=[];
    for(const y of [.2,height])for(const r of [inner,outer])for(let i=0;i<segments;i++){const a=2*Math.PI*i/segments;verts.push([r*Math.cos(a),y,r*Math.sin(a)])}
-   for(let i=0;i<segments;i++){const j=(i+1)%segments;faces.push([segments+i,segments+j,3*segments+j,3*segments+i],[i,j,2*segments+j,2*segments+i],[2*segments+i,2*segments+j,3*segments+j,3*segments+i],[i,segments+i,segments+j,j])}
+   for(let i=0;i<segments;i++){const j=(i+1)%segments;faces.push([segments+i,segments+j,3*segments+j,segments+i,3*segments+j,3*segments+i],[i,j,2*segments+j,i,2*segments+j,2*segments+i],[2*segments+i,2*segments+j,3*segments+j,2*segments+i,3*segments+j,3*segments+i],[i,segments+i,segments+j,i,segments+j,j])}
    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts.flat(),3));geo.setIndex(faces.flat());geo.computeVertexNormals();const wall=new THREE.Mesh(geo,sandstone);wall.castShadow=true;wall.receiveShadow=true;g.add(wall);
    cylinder(g,paleStone,0,.18,0,inner,inner,.18,48);
    for(let i=0;i<24;i++){const a=2*Math.PI*i/24;const line=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,inner-.35,5),tickMat);line.position.set(Math.cos(a)*(inner-.35)/2,.29,Math.sin(a)*(inner-.35)/2);line.rotation.z=Math.PI/2;line.rotation.y=-a;g.add(line);localCube(tickMat,inner*Math.cos(a),1.45,inner*Math.sin(a),.07,1.2,.07)}
