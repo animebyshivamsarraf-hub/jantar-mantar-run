@@ -1,55 +1,100 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#0b1118"><title>Jantar Mantar Run — PINOC 3D Character</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#101722"><title>JANTAR MANTAR RUN — Playable Original World</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b1118;color:#f4f7fb;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#game{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));pointer-events:none}.top,.bottom{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.panel{background:#101a2be8;border:1px solid #ffffff2b;border-radius:14px;padding:10px 12px;backdrop-filter:blur(10px)}.brand{font-size:12px;font-weight:900;letter-spacing:.08em}.muted{font-size:11px;color:#bac9d8;line-height:1.45;margin-top:4px}.status{max-width:58%;font-size:11px;line-height:1.45;color:#dce7f2}.controls{display:flex;gap:6px;align-items:end;pointer-events:auto}.pad{display:grid;grid-template-columns:repeat(3,44px);gap:4px}.actions{display:grid;grid-template-columns:repeat(2,auto);gap:5px}.btn{border:1px solid #ffffff40;border-radius:11px;background:#132236ef;color:white;min-height:42px;min-width:44px;padding:10px;font-size:11px;font-weight:850;touch-action:none}.btn.active,.btn:active{background:#2b8a73;color:white}.loading{position:fixed;inset:0;z-index:4;display:grid;place-items:center;padding:22px;background:#0b1118f5}.loading.hidden{display:none}.card{max-width:460px;width:100%;background:#13202d;border:1px solid #ffffff2b;border-radius:18px;padding:20px}.card h1{font-size:23px;margin:0 0 10px}.card p{font-size:13px;color:#c5d1dd;line-height:1.55}.bar{height:5px;border-radius:5px;background:#293949;overflow:hidden}.bar i{display:block;width:25%;height:100%;background:#4fd1b0;animation:loading 1.4s infinite alternate}@keyframes loading{to{width:90%}}.error{color:#ffb7b7!important;overflow-wrap:anywhere;white-space:pre-wrap}a{color:#7de5c9}@media(max-width:480px){.brand{font-size:10px}.muted,.status{font-size:10px}.panel{padding:9px}.pad{grid-template-columns:repeat(3,39px)}.btn{min-width:39px;padding:9px 7px}.controls{gap:5px}.actions{grid-template-columns:repeat(2,auto)}} 
-</style>
-<script type="importmap">{"imports":{"@viggle/splat-engine":"https://esm.sh/@viggle/splat-engine@0.1.1?external=playcanvas","playcanvas":"https://esm.sh/playcanvas@2.18.0"}}</script>
-</head><body><div id="game"></div>
-<div class="hud"><div class="top"><div class="panel"><div class="brand">JANTAR MANTAR RUN</div><div class="muted">PINOC · URBAN EXPLORER</div></div><div class="panel status" id="state">Starting real 3D engine…</div></div>
-<div class="bottom"><div class="controls"><div class="pad"><button class="btn" data-m="forward">▲</button><button class="btn" data-m="left">◀</button><button class="btn" data-m="back">▼</button><button class="btn" data-m="right">▶</button></div></div><div class="controls"><div class="actions"><button class="btn" id="jump">JUMP</button><button class="btn" id="sprint">SPRINT</button><button class="btn" id="idle">IDLE</button><button class="btn" id="reset">RESET</button></div></div></div></div>
-<div id="loading" class="loading"><div class="card"><h1>Loading actual PINOC 3D</h1><p id="message">Connecting to Viggle Splat Engine and loading the real Urban Explorer character plus skeletal animations. First load can take a moment.</p><div class="bar"><i></i></div><p id="error" class="error"></p><p class="muted">If the engine or PINOC asset server refuses the request, the exact error will appear here instead of a fake character.</p><p><a href="https://viggle.ai/pinoc/app" target="_blank" rel="noreferrer">Open this character in PINOC</a></p></div></div>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111827;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#stage{position:fixed;inset:0}canvas{touch-action:none}.hud{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 10px max(12px,env(safe-area-inset-bottom))}.top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.pill,.info{background:#101a2be8;border:1px solid #ffffff35;border-radius:13px;padding:9px 11px;font-size:11px;font-weight:850;box-shadow:0 4px 16px #0002}.pill small{display:block;color:#cbd5e1;font-size:9px;font-weight:600}.info{max-width:min(320px,72vw);font-weight:500;line-height:1.4}.bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}.pad{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(2,42px);gap:4px;pointer-events:auto}.btn{border:1px solid #ffffff55;border-radius:13px;background:#101a2beF;color:#fff;font-size:11px;font-weight:900;min-width:46px;min-height:42px;padding:7px;touch-action:none}.btn:active,.btn.active{background:#f5bd3b;color:#172033}.actions{display:flex;flex-direction:column;gap:5px;pointer-events:auto;align-items:stretch}.actions .btn{min-width:92px}.cross{visibility:hidden}.loading{position:fixed;inset:0;background:#101722;display:grid;place-items:center;padding:26px;text-align:center;z-index:5}.loading.hidden{display:none}.panel{max-width:420px}.panel h1{font-size:23px;margin:0 0 10px}.panel p{font-size:13px;line-height:1.55;color:#d5deeb}.bar{height:6px;background:#334155;border-radius:9px;overflow:hidden}.bar i{display:block;width:25%;height:100%;background:#f5bd3b;animation:load 2s infinite alternate}@keyframes load{to{width:90%}}.err{color:#fecaca!important;overflow-wrap:anywhere}@media(min-width:700px){.pad{transform:scale(1.15);transform-origin:bottom left}.actions .btn{min-width:115px}.info{font-size:12px}}
+</style></head><body><div id="stage"></div>
+<div class="hud"><div class="top"><div class="pill">JMR <small>ORIGINAL PINOC WORLD</small></div><div class="pill" id="readout">LOADING WORLD…</div></div><div class="info" id="hint">Loading your original Gaussian-splat world. The character and controls are being placed inside that same environment.</div><div class="bottom"><div class="pad"><button class="btn cross">.</button><button class="btn" data-move="forward">▲</button><button class="btn cross">.</button><button class="btn" data-move="left">◀</button><button class="btn" data-move="back">▼</button><button class="btn" data-move="right">▶</button></div><div class="actions"><button class="btn" id="jump">JUMP</button><button class="btn" id="run">SPRINT: OFF</button><button class="btn" id="reset">RESET</button><button class="btn" id="camera">CAMERA: FOLLOW</button></div></div></div>
+<div id="loading" class="loading"><div class="panel"><h1>Loading the original 3D world</h1><p>Load the exact environment file you just sent. On your phone, choose the downloaded <b>.spz</b> file below. No substitute map will be generated.</p><label class="btn" for="worldFile" style="display:inline-block;cursor:pointer;margin:8px 0;padding:12px 16px">LOAD YOUR SPZ ENVIRONMENT</label><input id="worldFile" type="file" accept=".spz,application/octet-stream" style="display:none"><div class="bar"><i></i></div><p id="status">Waiting for your environment file…</p><p id="err" class="err"></p></div></div>
 <script type="module">
-const $=id=>document.getElementById(id), state=$('state'), message=$('message'), error=$('error');
-const ASSET={
- character:'https://cdn.viggle.ai/multiview/2861116e-69f6-4205-a20a-afe8fc436744_generated/9be833f114d2/gpt-image2/front_static.performance.vsplat?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=iMkkqhr3tMVCmWSQIArAPAI5tRM',
- idle:'https://cdn.viggle.ai/3d-editor-assets/b17fe31f-292a-49ab-83f2-64f1290a45a1_Standing_Idle.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=yrWRx8Km0NFaO7ZMw1l9Olb-BHg',
- walk:'https://cdn.viggle.ai/3d-editor-assets/45a5bd7d-700f-4041-9dbc-6e4dcffcd954_Walking.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=zwYa1eE1Oa2wB8s_buO7btGtQQk',
- run:'https://cdn.viggle.ai/3d-editor-assets/15beccf3-c030-4b5b-af3d-00e3dc6d2f0a_Running.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=U33mTDkWMNW46NV983Zz84DTB28',
- jump:'https://cdn.viggle.ai/3d-editor-assets/51e2faff-6851-496a-9d23-40e34a865064_Jump.metahuman.splat-skeleton.cap-53e042949c8b-r2.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=aJeUZ1cJTgW3V-EJwBQg4Q5QU-o'
-};
-let scene,character,OrbitControls, keys={}, held={}, yaw=0, pitch=12, sprint=false, y=0, vy=0, onGround=true, moveTimer=0, last=performance.now();
-function fail(e){console.error(e);$('loading').classList.remove('hidden');message.textContent='The real 3D preview failed to initialize.';error.textContent=(e?.stack||e?.message||String(e));state.textContent='3D LOAD ERROR';}
+import * as THREE from 'https://esm.sh/three@0.160.0';
+import * as GS from 'https://esm.sh/@mkkellogg/gaussian-splats-3d@0.4.7?external=three';
+// The user-supplied SPZ is selected locally so the game never depends on an expiring signed CDN URL.
+let WORLD_URL=null; let worldObjectUrl=null;
+const $=id=>document.getElementById(id);
+const stage=$('stage'),status=$('status'),err=$('err'),hint=$('hint'),readout=$('readout');
+const scene=new THREE.Scene();
+// Collision-support base: a real Three.js mesh beneath the scanned SPZ visuals.
+// The splat remains the original visual environment; this plane is a fallback floor,
+// not a substitute for a measured terrain collision mesh.
+scene.add(new THREE.HemisphereLight(0xffffff,0x66594a,2));
+const floorCanvas=document.createElement('canvas');floorCanvas.width=512;floorCanvas.height=512;
+const floorCtx=floorCanvas.getContext('2d');
+floorCtx.fillStyle='#5a554b';floorCtx.fillRect(0,0,512,512);
+let floorSeed=81273;const rand=()=>{floorSeed=(floorSeed*1664525+1013904223)>>>0;return floorSeed/4294967296};
+for(let i=0;i<14000;i++){const v=rand();floorCtx.fillStyle=v>.5?'rgba(210,195,165,.10)':'rgba(20,24,24,.13)';const r=.3+rand()*2.1;floorCtx.fillRect(rand()*512,rand()*512,r,r)}
+const floorTexture=new THREE.CanvasTexture(floorCanvas);floorTexture.wrapS=floorTexture.wrapT=THREE.RepeatWrapping;floorTexture.repeat.set(8,24);floorTexture.colorSpace=THREE.SRGBColorSpace;
+const baseFloor=new THREE.Mesh(new THREE.PlaneGeometry(80,280),new THREE.MeshStandardMaterial({map:floorTexture,color:0xffffff,roughness:1,metalness:0}));
+baseFloor.rotation.x=-Math.PI/2;baseFloor.position.set(0,-0.12,-45);baseFloor.receiveShadow=true;scene.add(baseFloor);
+const roadCanvas=document.createElement('canvas');roadCanvas.width=256;roadCanvas.height=512;
+const roadCtx=roadCanvas.getContext('2d');roadCtx.fillStyle='#343638';roadCtx.fillRect(0,0,256,512);
+for(let i=0;i<5000;i++){const v=rand();roadCtx.fillStyle=v>.5?'rgba(210,210,200,.07)':'rgba(0,0,0,.12)';roadCtx.fillRect(rand()*256,rand()*512,.5+rand()*1.8,.5+rand()*1.8)}
+const roadTexture=new THREE.CanvasTexture(roadCanvas);roadTexture.wrapS=roadTexture.wrapT=THREE.RepeatWrapping;roadTexture.repeat.set(1,18);roadTexture.colorSpace=THREE.SRGBColorSpace;
+const fallbackRoad=new THREE.Mesh(new THREE.PlaneGeometry(9,280),new THREE.MeshStandardMaterial({map:roadTexture,roughness:.96,metalness:0}));
+fallbackRoad.rotation.x=-Math.PI/2;fallbackRoad.position.set(0,-0.055,-45);fallbackRoad.receiveShadow=true;scene.add(fallbackRoad);
+const sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(-8,15,8);scene.add(sun);
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,500);camera.position.set(0,3.3,10);
+let viewer;
+const keys={},held={forward:false,back:false,left:false,right:false};
+let yaw=0,pitch=.12,sprinting=false,groundY=0,vy=0,onGround=true,walk=0,freeCamera=false,drag=null;
+const player=new THREE.Group();scene.add(player);
+const material=c=>new THREE.MeshStandardMaterial({color:c,roughness:.82});
+const skin=material(0x996545),hair=material(0x211b19),shirt=material(0x176b70),pants=material(0x303641),shoe=material(0x191919),gold=material(0xd6b56b);
+function cube(parent,m,x,y,z,sx,sy,sz){const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+function ball(parent,m,x,y,z,sx,sy,sz){const o=new THREE.Mesh(new THREE.SphereGeometry(1,14,10),m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=true;parent.add(o);return o}
+cube(player,shirt,0,1.24,0,.62,.7,.34);cube(player,gold,0,1.02,.18,.49,.045,.025);ball(player,skin,0,1.82,0,.225,.26,.22);ball(player,hair,0,2.02,-.015,.23,.115,.23);cube(player,hair,0,1.94,.17,.28,.08,.07);
+const armL=cube(player,shirt,-.39,1.28,0,.17,.53,.18),armR=cube(player,shirt,.39,1.28,0,.17,.53,.18);
+const legL=cube(player,pants,-.16,.4,0,.19,.58,.22),legR=cube(player,pants,.16,.4,0,.19,.58,.22);cube(player,shoe,-.16,.09,.07,.22,.14,.31);cube(player,shoe,.16,.09,.07,.22,.14,.31);
+player.position.set(0,0,4);
+const colliderBoxes=[]; // invisible gameplay-only collision proxies; never replace the scanned visual world
+function blocked(x,z){if(x < -13 || x > 13 || z < -115 || z > 22)return true;return colliderBoxes.some(b=>Math.abs(x-b.x)<b.w/2+.28&&Math.abs(z-b.z)<b.d/2+.28)}
+function setMove(name,val){held[name]=val}
+document.querySelectorAll('[data-move]').forEach(b=>{const n=b.dataset.move;b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);setMove(n,true)});for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>setMove(n,false))});
+window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();jump()}if(e.key==='Shift'){sprinting=true;$('run').textContent='SPRINT: ON'}});
+window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;if(e.key==='Shift'){sprinting=false;$('run').textContent='SPRINT: OFF'}});
+function jump(){if(onGround){vy=6.5;onGround=false}}
+$('jump').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
+$('run').onclick=()=>{sprinting=!sprinting;$('run').textContent='SPRINT: '+(sprinting?'ON':'OFF')};
+$('reset').onclick=()=>{player.position.set(0,0,4);vy=0;onGround=true;yaw=0;pitch=.12};
+$('camera').onclick=()=>{freeCamera=!freeCamera;$('camera').textContent='CAMERA: '+(freeCamera?'FREE':'FOLLOW')};
+stage.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,id:e.pointerId};stage.setPointerCapture?.(e.pointerId)});
+stage.addEventListener('pointermove',e=>{if(!drag||freeCamera)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;yaw-=dx*.005;pitch=THREE.MathUtils.clamp(pitch+dy*.002,-.22,.5)});
+stage.addEventListener('pointerup',()=>drag=null);stage.addEventListener('pointercancel',()=>drag=null);
+function animate(){requestAnimationFrame(animate);if(!viewer)return;
+const dt=Math.min(viewer.lastDt||.016,.04);viewer.lastDt=.016;
+const f=(held.forward||keys.w||keys.arrowup?1:0)-(held.back||keys.s||keys.arrowdown?1:0);
+const s=(held.right||keys.d||keys.arrowright?1:0)-(held.left||keys.a||keys.arrowleft?1:0);
+const speed=(sprinting||keys.shift?7.5:4.2)*dt;
+const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
+const dx=(forward.x*f+right.x*s)*speed,dz=(forward.z*f+right.z*s)*speed;
+const nx=player.position.x+dx,nz=player.position.z+dz;
+if(!blocked(nx,player.position.z))player.position.x=nx;
+if(!blocked(player.position.x,nz))player.position.z=nz;
+const moving=Math.abs(f)+Math.abs(s)>.05;walk+=moving?dt*(sprinting?13:9):0;
+if(moving){player.rotation.y=Math.atan2(-dx,-dz);legL.rotation.x=Math.sin(walk)*.48;legR.rotation.x=-Math.sin(walk)*.48;armL.rotation.x=-Math.sin(walk)*.32;armR.rotation.x=Math.sin(walk)*.32}
+else{legL.rotation.x*=.8;legR.rotation.x*=.8;armL.rotation.x*=.8;armR.rotation.x*=.8}
+vy-=18*dt;player.position.y+=vy*dt;if(player.position.y<=groundY){player.position.y=groundY;vy=0;onGround=true}
+if(!freeCamera){const target=new THREE.Vector3(player.position.x,player.position.y+1.25,player.position.z);const dist=5.8;const desired=new THREE.Vector3(target.x+Math.sin(yaw)*dist,target.y+1.5+pitch*3,target.z+Math.cos(yaw)*dist);camera.position.lerp(desired,1-Math.exp(-dt*7));camera.lookAt(target.x,target.y+.1,target.z)}
+readout.textContent=(sprinting?'SPRINT':'INDIAN PLAYER')+' · '+player.position.x.toFixed(1)+', '+player.position.z.toFixed(1);
+viewer.update?.();viewer.render?.()
+}
 try{
- message.textContent='Importing the real Viggle Splat Engine…';
- const E=await import('@viggle/splat-engine');
- const canvas=document.createElement('canvas');canvas.id='renderCanvas';$('game').appendChild(canvas);
- scene=await E.Scene.create(canvas,{fov:45,depth:true});
- scene.start();
- const controls=new E.OrbitControls({distance:4.8,pitch:12,target:{x:0,y:0.9,z:0}});
- controls.attach({canvas,cameraEntity:scene.cameraEntity});
- scene.app.on('update',()=>controls.update());
- try{E.SkyDome?.create(scene,{topColor:'#9dc8df',bottomColor:'#e7e2d4'});E.Grid?.create(scene)}catch{}
- message.textContent='Loading Urban Explorer Gaussian-splat character…';
- character=await E.Character.load(scene,ASSET.character);
- message.textContent='Loading real PINOC skeletal clips…';
- await Promise.all([
-  E.Animation.loadGlb(scene,ASSET.idle,'idle'),
-  E.Animation.loadGlb(scene,ASSET.walk,'walk'),
-  E.Animation.loadGlb(scene,ASSET.run,'run'),
-  E.Animation.loadGlb(scene,ASSET.jump,'jump')
- ]);
- character.playAnimation('idle',{loop:true});
- $('loading').classList.add('hidden');state.textContent='REAL PINOC CHARACTER LOADED · IDLE';
- const play=name=>{try{character.crossfadeTo(name,{duration:.22,loop:name!=='jump'})}catch(e){console.warn(e)}};
- const action=(id,name)=>$(id).addEventListener('click',()=>{play(name);state.textContent='REAL ANIMATION · '+name.toUpperCase()});
- action('idle','idle');
- $('jump').addEventListener('click',()=>{if(onGround){vy=5.5;onGround=false;play('jump');state.textContent='JUMP'}})
- $('sprint').addEventListener('click',()=>{sprint=!sprint;$('sprint').classList.toggle('active',sprint);state.textContent=sprint?'SPRINT · REAL RUN CLIP':'WALK · REAL WALK CLIP';play(sprint?'run':'walk')});
- $('reset').addEventListener('click',()=>{y=0;vy=0;onGround=true;yaw=0;pitch=12;controls.distance=4.8;play('idle');state.textContent='RESET · IDLE'});
- document.querySelectorAll('[data-m]').forEach(b=>{const n=b.dataset.m;b.addEventListener('pointerdown',e=>{e.preventDefault();held[n]=true;b.classList.add('active');play(sprint?'run':'walk');state.textContent='MOVE · '+n.toUpperCase()});for(const ev of ['pointerup','pointercancel','lostpointercapture'] )b.addEventListener(ev,()=>{held[n]=false;b.classList.remove('active');if(!Object.values(held).some(Boolean)){play('idle');state.textContent='IDLE'}})});
- addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();$('jump').click()}if(e.key==='Shift'){sprint=true;play('run')}});
- addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;if(e.key==='Shift'){sprint=false;play('idle')}});
- // Keep player movement lightweight until a measured collision environment is supplied.
- scene.app.on('update',dt=>{const f=(held.forward||keys.w||keys.arrowup?1:0)-(held.back||keys.s||keys.arrowdown?1:0),s=(held.right||keys.d||keys.arrowright?1:0)-(held.left||keys.a||keys.arrowleft?1:0);if(f||s){moveTimer+=dt;state.textContent=sprint?'SPRINT · REAL RUN CLIP':'MOVING · '+(s?'STRAFE':'FORWARD')}if(!onGround){vy-=15*dt;y+=vy*dt;if(y<=0){y=0;vy=0;onGround=true;play('idle');state.textContent='LANDED'}}});
-}catch(e){fail(e)}
+status.textContent='Preparing Gaussian-splat renderer…';
+viewer=new GS.Viewer({rootElement:stage,threeScene:scene,camera,initialCameraPosition:[0,3.3,10],initialCameraLookAt:[0,1,0],useBuiltInControls:false,selfDrivenMode:false,gpuAcceleratedSort:true,sharedMemoryForWorkers:false,ignoreDevicePixelRatio:false,renderMode:GS.RenderMode?.Always});
+viewer.start?.();
+$('worldFile').addEventListener('change',async e=>{
+ const file=e.target.files?.[0]; if(!file)return;
+ if(!file.name.toLowerCase().endsWith('.spz')){err.textContent='Please choose the .spz environment file.';return}
+ try{
+  err.textContent='';status.textContent='Reading '+file.name+' ('+(file.size/1048576).toFixed(1)+' MB)…';
+  if(worldObjectUrl)URL.revokeObjectURL(worldObjectUrl);
+  worldObjectUrl=URL.createObjectURL(file);WORLD_URL=worldObjectUrl;
+  await viewer.addSplatScene(WORLD_URL,{format:GS.SceneFormat?.SPZ,position:[0,0,0],rotation:[0,0,0,1],scale:[1,1,1],splatAlphaRemovalThreshold:1,showLoadingUI:false,progressiveLoad:true,onProgress:(p,label)=>{status.textContent='Loading your exact environment… '+(label||'')+' '+(p??'')}});
+  $('loading').classList.add('hidden');
+  hint.textContent='Your selected SPZ environment is loaded. Use the arrows or WASD to move, drag to rotate the camera, and use jump/sprint. Ground collision remains approximate unless a separate collision mesh is provided.';
+  requestAnimationFrame(animate);
+ }catch(ex){console.error(ex);status.textContent='Environment could not be loaded.';err.textContent=(ex?.message||String(ex))+' — check that this is a valid SPZ file and retry.'}
+});
+status.textContent='Renderer ready. Tap LOAD YOUR SPZ ENVIRONMENT to choose the file.';
+}catch(e){console.error(e);status.textContent='3D renderer failed to start.';err.textContent=e?.message||String(e)}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();if(viewer?.renderer)viewer.renderer.setSize(innerWidth,innerHeight)});
 </script></body></html>
