@@ -1,100 +1,53 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#101722"><title>JANTAR MANTAR RUN — Playable Original World</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#101722"><title>Jantar Mantar Run — Third Person Control Lab</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111827;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}#stage{position:fixed;inset:0}canvas{touch-action:none}.hud{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 10px max(12px,env(safe-area-inset-bottom))}.top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.pill,.info{background:#101a2be8;border:1px solid #ffffff35;border-radius:13px;padding:9px 11px;font-size:11px;font-weight:850;box-shadow:0 4px 16px #0002}.pill small{display:block;color:#cbd5e1;font-size:9px;font-weight:600}.info{max-width:min(320px,72vw);font-weight:500;line-height:1.4}.bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}.pad{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(2,42px);gap:4px;pointer-events:auto}.btn{border:1px solid #ffffff55;border-radius:13px;background:#101a2beF;color:#fff;font-size:11px;font-weight:900;min-width:46px;min-height:42px;padding:7px;touch-action:none}.btn:active,.btn.active{background:#f5bd3b;color:#172033}.actions{display:flex;flex-direction:column;gap:5px;pointer-events:auto;align-items:stretch}.actions .btn{min-width:92px}.cross{visibility:hidden}.loading{position:fixed;inset:0;background:#101722;display:grid;place-items:center;padding:26px;text-align:center;z-index:5}.loading.hidden{display:none}.panel{max-width:420px}.panel h1{font-size:23px;margin:0 0 10px}.panel p{font-size:13px;line-height:1.55;color:#d5deeb}.bar{height:6px;background:#334155;border-radius:9px;overflow:hidden}.bar i{display:block;width:25%;height:100%;background:#f5bd3b;animation:load 2s infinite alternate}@keyframes load{to{width:90%}}.err{color:#fecaca!important;overflow-wrap:anywhere}@media(min-width:700px){.pad{transform:scale(1.15);transform-origin:bottom left}.actions .btn{min-width:115px}.info{font-size:12px}}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111923;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:none}#stage{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom))}.top,.bottom{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.panel{background:#101a2be8;border:1px solid #ffffff35;border-radius:13px;padding:9px 11px;font-size:11px;box-shadow:0 4px 16px #0002;backdrop-filter:blur(8px)}.brand{font-weight:900;letter-spacing:.07em}.muted{color:#cbd5e1;font-size:10px;margin-top:3px;line-height:1.4}.status{max-width:48%;line-height:1.4}.bottom{align-items:flex-end}.joystick{width:136px;height:136px;border:2px solid #ffffff70;border-radius:50%;background:#101a2b99;position:relative;pointer-events:auto;touch-action:none;box-shadow:inset 0 0 20px #0005}.stick{position:absolute;width:54px;height:54px;left:39px;top:39px;border-radius:50%;background:#e8f0f7df;border:2px solid #fff;box-shadow:0 3px 12px #0007;pointer-events:none}.actions{display:grid;grid-template-columns:repeat(2,64px);gap:7px;pointer-events:auto}.btn{min-height:48px;border:1px solid #ffffff55;border-radius:13px;background:#132236ef;color:#fff;font-size:10px;font-weight:900;touch-action:none;padding:6px}.btn:active,.btn.active{background:#247c68}.loading{position:fixed;inset:0;z-index:4;display:grid;place-items:center;padding:22px;background:#101722f2}.loading.hidden{display:none}.card{max-width:430px;width:100%;background:#13202d;border:1px solid #ffffff2b;border-radius:18px;padding:20px}.card h1{font-size:22px;margin:0 0 10px}.card p{font-size:13px;color:#c5d1dd;line-height:1.55}.bar{height:5px;border-radius:5px;background:#293949;overflow:hidden}.bar i{display:block;width:70%;height:100%;background:#4fd1b0}@media(min-width:700px){.joystick{width:150px;height:150px}.stick{left:46px;top:46px}.actions{grid-template-columns:repeat(3,72px)}}@media(max-width:380px){.joystick{width:116px;height:116px}.stick{left:30px;top:30px}.actions{grid-template-columns:repeat(2,58px)}.btn{min-height:43px}}
 </style></head><body><div id="stage"></div>
-<div class="hud"><div class="top"><div class="pill">JMR <small>ORIGINAL PINOC WORLD</small></div><div class="pill" id="readout">LOADING WORLD…</div></div><div class="info" id="hint">Loading your original Gaussian-splat world. The character and controls are being placed inside that same environment.</div><div class="bottom"><div class="pad"><button class="btn cross">.</button><button class="btn" data-move="forward">▲</button><button class="btn cross">.</button><button class="btn" data-move="left">◀</button><button class="btn" data-move="back">▼</button><button class="btn" data-move="right">▶</button></div><div class="actions"><button class="btn" id="jump">JUMP</button><button class="btn" id="run">SPRINT: OFF</button><button class="btn" id="reset">RESET</button><button class="btn" id="camera">CAMERA: FOLLOW</button></div></div></div>
-<div id="loading" class="loading"><div class="panel"><h1>Loading the original 3D world</h1><p>Load the exact environment file you just sent. On your phone, choose the downloaded <b>.spz</b> file below. No substitute map will be generated.</p><label class="btn" for="worldFile" style="display:inline-block;cursor:pointer;margin:8px 0;padding:12px 16px">LOAD YOUR SPZ ENVIRONMENT</label><input id="worldFile" type="file" accept=".spz,application/octet-stream" style="display:none"><div class="bar"><i></i></div><p id="status">Waiting for your environment file…</p><p id="err" class="err"></p></div></div>
+<div class="hud"><div class="top"><div class="panel"><div class="brand">JANTAR MANTAR RUN</div><div class="muted">THIRD-PERSON CONTROL LAB</div></div><div class="panel status" id="status">Loading 3D scene…</div></div>
+<div class="bottom"><div id="joy" class="joystick" aria-label="Movement joystick"><div id="stick" class="stick"></div></div><div class="actions"><button class="btn" id="jump">JUMP</button><button class="btn" id="sprint">SPRINT</button><button class="btn" id="crouch">CROUCH</button><button class="btn" id="cam">CAMERA</button><button class="btn" id="reset">RESET</button><button class="btn" id="help">CONTROLS</button></div></div></div>
+<div id="loading" class="loading"><div class="card"><h1>3D Control Lab</h1><p>Starting a clean Three.js scene. This version does not import Viggle Splat Engine, so the cross-origin worker error will not block the controls.</p><div class="bar"><i></i></div><p id="loadmsg">Loading renderer…</p></div></div>
 <script type="module">
 import * as THREE from 'https://esm.sh/three@0.160.0';
-import * as GS from 'https://esm.sh/@mkkellogg/gaussian-splats-3d@0.4.7?external=three';
-// The user-supplied SPZ is selected locally so the game never depends on an expiring signed CDN URL.
-let WORLD_URL=null; let worldObjectUrl=null;
-const $=id=>document.getElementById(id);
-const stage=$('stage'),status=$('status'),err=$('err'),hint=$('hint'),readout=$('readout');
-const scene=new THREE.Scene();
-// Collision-support base: a real Three.js mesh beneath the scanned SPZ visuals.
-// The splat remains the original visual environment; this plane is a fallback floor,
-// not a substitute for a measured terrain collision mesh.
-scene.add(new THREE.HemisphereLight(0xffffff,0x66594a,2));
-const floorCanvas=document.createElement('canvas');floorCanvas.width=512;floorCanvas.height=512;
-const floorCtx=floorCanvas.getContext('2d');
-floorCtx.fillStyle='#5a554b';floorCtx.fillRect(0,0,512,512);
-let floorSeed=81273;const rand=()=>{floorSeed=(floorSeed*1664525+1013904223)>>>0;return floorSeed/4294967296};
-for(let i=0;i<14000;i++){const v=rand();floorCtx.fillStyle=v>.5?'rgba(210,195,165,.10)':'rgba(20,24,24,.13)';const r=.3+rand()*2.1;floorCtx.fillRect(rand()*512,rand()*512,r,r)}
-const floorTexture=new THREE.CanvasTexture(floorCanvas);floorTexture.wrapS=floorTexture.wrapT=THREE.RepeatWrapping;floorTexture.repeat.set(8,24);floorTexture.colorSpace=THREE.SRGBColorSpace;
-const baseFloor=new THREE.Mesh(new THREE.PlaneGeometry(80,280),new THREE.MeshStandardMaterial({map:floorTexture,color:0xffffff,roughness:1,metalness:0}));
-baseFloor.rotation.x=-Math.PI/2;baseFloor.position.set(0,-0.12,-45);baseFloor.receiveShadow=true;scene.add(baseFloor);
-const roadCanvas=document.createElement('canvas');roadCanvas.width=256;roadCanvas.height=512;
-const roadCtx=roadCanvas.getContext('2d');roadCtx.fillStyle='#343638';roadCtx.fillRect(0,0,256,512);
-for(let i=0;i<5000;i++){const v=rand();roadCtx.fillStyle=v>.5?'rgba(210,210,200,.07)':'rgba(0,0,0,.12)';roadCtx.fillRect(rand()*256,rand()*512,.5+rand()*1.8,.5+rand()*1.8)}
-const roadTexture=new THREE.CanvasTexture(roadCanvas);roadTexture.wrapS=roadTexture.wrapT=THREE.RepeatWrapping;roadTexture.repeat.set(1,18);roadTexture.colorSpace=THREE.SRGBColorSpace;
-const fallbackRoad=new THREE.Mesh(new THREE.PlaneGeometry(9,280),new THREE.MeshStandardMaterial({map:roadTexture,roughness:.96,metalness:0}));
-fallbackRoad.rotation.x=-Math.PI/2;fallbackRoad.position.set(0,-0.055,-45);fallbackRoad.receiveShadow=true;scene.add(fallbackRoad);
-const sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(-8,15,8);scene.add(sun);
-const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,500);camera.position.set(0,3.3,10);
-let viewer;
-const keys={},held={forward:false,back:false,left:false,right:false};
-let yaw=0,pitch=.12,sprinting=false,groundY=0,vy=0,onGround=true,walk=0,freeCamera=false,drag=null;
+const $=id=>document.getElementById(id), stage=$('stage'), status=$('status');
+const scene=new THREE.Scene();scene.background=new THREE.Color('#a9c7d5');scene.fog=new THREE.Fog('#a9c7d5',28,100);
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,300);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;stage.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x6b746b,2.2));const sun=new THREE.DirectionalLight(0xfff0d9,3);sun.position.set(-12,22,10);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(180,180),new THREE.MeshStandardMaterial({color:'#a69c83',roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+const road=new THREE.Mesh(new THREE.PlaneGeometry(12,150),new THREE.MeshStandardMaterial({color:'#454b50',roughness:.95}));road.rotation.x=-Math.PI/2;road.position.set(0,.012,-28);scene.add(road);
+for(let z=8;z>-95;z-=5){const line=new THREE.Mesh(new THREE.BoxGeometry(.12,.025,2.2),new THREE.MeshStandardMaterial({color:'#eee2b6'}));line.position.set(0,.035,z);scene.add(line)}
+function box(w,h,d,color,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:.8}));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);return m}
+for(let i=0;i<22;i++){let z=8-i*4.7;box(1.5,2.2,1.2,i%2?'#b78d69':'#d0b69a',-9-Math.sin(i)*2,1.1,z);box(1.8,3.3,1.3,i%2?'#d5c1a1':'#9f9b8c',9+Math.cos(i)*2,1.65,z-1)}
+// Landmark-inspired observatory forms for a recognizable original environment.
+for(let i=0;i<4;i++){const x=i%2?6.5:-6.5,z=-12-Math.floor(i/2)*17;const base=box(4,.45,4,'#d8c7a4',x,.22,z);const arc=new THREE.Mesh(new THREE.TorusGeometry(1.45,.15,10,32,Math.PI),new THREE.MeshStandardMaterial({color:'#e6d5b5',roughness:.85}));arc.position.set(x,.5,z);arc.rotation.z=Math.PI;arc.castShadow=true;scene.add(arc);box(.35,1.5,.35,'#b8a07c',x-1.2,1,z);box(.35,1.5,.35,'#b8a07c',x+1.2,1,z)}
+// Stylized test rig: visible placeholder while real PINOC splat+skeletal assets are being integrated.
 const player=new THREE.Group();scene.add(player);
-const material=c=>new THREE.MeshStandardMaterial({color:c,roughness:.82});
-const skin=material(0x996545),hair=material(0x211b19),shirt=material(0x176b70),pants=material(0x303641),shoe=material(0x191919),gold=material(0xd6b56b);
-function cube(parent,m,x,y,z,sx,sy,sz){const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
-function ball(parent,m,x,y,z,sx,sy,sz){const o=new THREE.Mesh(new THREE.SphereGeometry(1,14,10),m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=true;parent.add(o);return o}
-cube(player,shirt,0,1.24,0,.62,.7,.34);cube(player,gold,0,1.02,.18,.49,.045,.025);ball(player,skin,0,1.82,0,.225,.26,.22);ball(player,hair,0,2.02,-.015,.23,.115,.23);cube(player,hair,0,1.94,.17,.28,.08,.07);
-const armL=cube(player,shirt,-.39,1.28,0,.17,.53,.18),armR=cube(player,shirt,.39,1.28,0,.17,.53,.18);
-const legL=cube(player,pants,-.16,.4,0,.19,.58,.22),legR=cube(player,pants,.16,.4,0,.19,.58,.22);cube(player,shoe,-.16,.09,.07,.22,.14,.31);cube(player,shoe,.16,.09,.07,.22,.14,.31);
-player.position.set(0,0,4);
-const colliderBoxes=[]; // invisible gameplay-only collision proxies; never replace the scanned visual world
-function blocked(x,z){if(x < -13 || x > 13 || z < -115 || z > 22)return true;return colliderBoxes.some(b=>Math.abs(x-b.x)<b.w/2+.28&&Math.abs(z-b.z)<b.d/2+.28)}
-function setMove(name,val){held[name]=val}
-document.querySelectorAll('[data-move]').forEach(b=>{const n=b.dataset.move;b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);setMove(n,true)});for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>setMove(n,false))});
-window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();jump()}if(e.key==='Shift'){sprinting=true;$('run').textContent='SPRINT: ON'}});
-window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;if(e.key==='Shift'){sprinting=false;$('run').textContent='SPRINT: OFF'}});
-function jump(){if(onGround){vy=6.5;onGround=false}}
-$('jump').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
-$('run').onclick=()=>{sprinting=!sprinting;$('run').textContent='SPRINT: '+(sprinting?'ON':'OFF')};
-$('reset').onclick=()=>{player.position.set(0,0,4);vy=0;onGround=true;yaw=0;pitch=.12};
-$('camera').onclick=()=>{freeCamera=!freeCamera;$('camera').textContent='CAMERA: '+(freeCamera?'FREE':'FOLLOW')};
-stage.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,id:e.pointerId};stage.setPointerCapture?.(e.pointerId)});
-stage.addEventListener('pointermove',e=>{if(!drag||freeCamera)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;yaw-=dx*.005;pitch=THREE.MathUtils.clamp(pitch+dy*.002,-.22,.5)});
-stage.addEventListener('pointerup',()=>drag=null);stage.addEventListener('pointercancel',()=>drag=null);
-function animate(){requestAnimationFrame(animate);if(!viewer)return;
-const dt=Math.min(viewer.lastDt||.016,.04);viewer.lastDt=.016;
-const f=(held.forward||keys.w||keys.arrowup?1:0)-(held.back||keys.s||keys.arrowdown?1:0);
-const s=(held.right||keys.d||keys.arrowright?1:0)-(held.left||keys.a||keys.arrowleft?1:0);
-const speed=(sprinting||keys.shift?7.5:4.2)*dt;
-const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
-const dx=(forward.x*f+right.x*s)*speed,dz=(forward.z*f+right.z*s)*speed;
-const nx=player.position.x+dx,nz=player.position.z+dz;
-if(!blocked(nx,player.position.z))player.position.x=nx;
-if(!blocked(player.position.x,nz))player.position.z=nz;
-const moving=Math.abs(f)+Math.abs(s)>.05;walk+=moving?dt*(sprinting?13:9):0;
-if(moving){player.rotation.y=Math.atan2(-dx,-dz);legL.rotation.x=Math.sin(walk)*.48;legR.rotation.x=-Math.sin(walk)*.48;armL.rotation.x=-Math.sin(walk)*.32;armR.rotation.x=Math.sin(walk)*.32}
-else{legL.rotation.x*=.8;legR.rotation.x*=.8;armL.rotation.x*=.8;armR.rotation.x*=.8}
-vy-=18*dt;player.position.y+=vy*dt;if(player.position.y<=groundY){player.position.y=groundY;vy=0;onGround=true}
-if(!freeCamera){const target=new THREE.Vector3(player.position.x,player.position.y+1.25,player.position.z);const dist=5.8;const desired=new THREE.Vector3(target.x+Math.sin(yaw)*dist,target.y+1.5+pitch*3,target.z+Math.cos(yaw)*dist);camera.position.lerp(desired,1-Math.exp(-dt*7));camera.lookAt(target.x,target.y+.1,target.z)}
-readout.textContent=(sprinting?'SPRINT':'INDIAN PLAYER')+' · '+player.position.x.toFixed(1)+', '+player.position.z.toFixed(1);
-viewer.update?.();viewer.render?.()
-}
-try{
-status.textContent='Preparing Gaussian-splat renderer…';
-viewer=new GS.Viewer({rootElement:stage,threeScene:scene,camera,initialCameraPosition:[0,3.3,10],initialCameraLookAt:[0,1,0],useBuiltInControls:false,selfDrivenMode:false,gpuAcceleratedSort:true,sharedMemoryForWorkers:false,ignoreDevicePixelRatio:false,renderMode:GS.RenderMode?.Always});
-viewer.start?.();
-$('worldFile').addEventListener('change',async e=>{
- const file=e.target.files?.[0]; if(!file)return;
- if(!file.name.toLowerCase().endsWith('.spz')){err.textContent='Please choose the .spz environment file.';return}
- try{
-  err.textContent='';status.textContent='Reading '+file.name+' ('+(file.size/1048576).toFixed(1)+' MB)…';
-  if(worldObjectUrl)URL.revokeObjectURL(worldObjectUrl);
-  worldObjectUrl=URL.createObjectURL(file);WORLD_URL=worldObjectUrl;
-  await viewer.addSplatScene(WORLD_URL,{format:GS.SceneFormat?.SPZ,position:[0,0,0],rotation:[0,0,0,1],scale:[1,1,1],splatAlphaRemovalThreshold:1,showLoadingUI:false,progressiveLoad:true,onProgress:(p,label)=>{status.textContent='Loading your exact environment… '+(label||'')+' '+(p??'')}});
-  $('loading').classList.add('hidden');
-  hint.textContent='Your selected SPZ environment is loaded. Use the arrows or WASD to move, drag to rotate the camera, and use jump/sprint. Ground collision remains approximate unless a separate collision mesh is provided.';
-  requestAnimationFrame(animate);
- }catch(ex){console.error(ex);status.textContent='Environment could not be loaded.';err.textContent=(ex?.message||String(ex))+' — check that this is a valid SPZ file and retry.'}
-});
-status.textContent='Renderer ready. Tap LOAD YOUR SPZ ENVIRONMENT to choose the file.';
-}catch(e){console.error(e);status.textContent='3D renderer failed to start.';err.textContent=e?.message||String(e)}
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();if(viewer?.renderer)viewer.renderer.setSize(innerWidth,innerHeight)});
+const suit=new THREE.MeshStandardMaterial({color:'#187663',roughness:.65}), pants=new THREE.MeshStandardMaterial({color:'#283342',roughness:.75}), skin=new THREE.MeshStandardMaterial({color:'#b97d58',roughness:.8}), dark=new THREE.MeshStandardMaterial({color:'#171b21',roughness:.8});
+function limb(parent,geo,mat,x,y,z){const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m}
+const body=limb(player,new THREE.CapsuleGeometry(.34,.68,5,10),suit,0,1.25,0);const head=limb(player,new THREE.SphereGeometry(.24,16,12),skin,0,1.97,0);limb(player,new THREE.SphereGeometry(.245,16,10),dark,0,2.08,-.015);
+const armL=limb(player,new THREE.CapsuleGeometry(.105,.52,4,8),suit,-.43,1.36,0),armR=limb(player,new THREE.CapsuleGeometry(.105,.52,4,8),suit,.43,1.36,0);armL.rotation.z=-.12;armR.rotation.z=.12;
+const legL=limb(player,new THREE.CapsuleGeometry(.14,.58,4,8),pants,-.19,.48,0),legR=limb(player,new THREE.CapsuleGeometry(.14,.58,4,8),pants,.19,.48,0);limb(player,new THREE.BoxGeometry(.28,.13,.45),dark,-.19,.12,-.08);limb(player,new THREE.BoxGeometry(.28,.13,.45),dark,.19,.12,-.08);
+player.position.set(0,0,3);
+let yaw=0,pitch=.18,camDistance=6,vy=0,onGround=true,sprinting=false,crouched=false,walk=0,freeCam=false,drag=null;const input={x:0,y:0,keys:{},buttons:{}};
+function jump(){if(onGround){vy=7.2;onGround=false;status.textContent='JUMPING'}}
+function setBtn(id,fn){$(id).addEventListener('click',fn)}
+setBtn('jump',jump);setBtn('sprint',()=>{sprinting=!sprinting;$('sprint').classList.toggle('active',sprinting);status.textContent=sprinting?'SPRINT ON':'SPRINT OFF'});
+setBtn('crouch',()=>{crouched=!crouched;player.scale.y=crouched?.72:1;$('crouch').classList.toggle('active',crouched);status.textContent=crouched?'CROUCH':'STANDING'});
+setBtn('cam',()=>{freeCam=!freeCam;$('cam').classList.toggle('active',freeCam);status.textContent=freeCam?'FREE CAMERA · DRAG TO LOOK':'FOLLOW CAMERA'});
+setBtn('reset',()=>{player.position.set(0,0,3);yaw=0;pitch=.18;vy=0;onGround=true;sprinting=false;crouched=false;player.scale.y=1;status.textContent='RESET COMPLETE'});
+setBtn('help',()=>{status.textContent='LEFT STICK: move · drag right side: look · JUMP · SPRINT · CROUCH · WASD/ARROWS · SPACE · SHIFT'});
+const joy=$('joy'),stick=$('stick');let joyId=null;
+function joyMove(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=r.width*.34,len=Math.hypot(dx,dy),k=len>max?max/len:1;input.x=dx*k/max;input.y=dy*k/max;stick.style.transform='translate('+dx*k+'px,'+dy*k+'px)'}
+joy.addEventListener('pointerdown',e=>{e.preventDefault();joyId=e.pointerId;joy.setPointerCapture(e.pointerId);joyMove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e)});function joyEnd(e){if(e.pointerId===joyId){joyId=null;input.x=input.y=0;stick.style.transform='translate(0,0)'}}joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.clientX<innerWidth*.38&&e.clientY>innerHeight*.5)return;drag={x:e.clientX,y:e.clientY,id:e.pointerId};renderer.domElement.setPointerCapture?.(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;yaw-=dx*.004;pitch=THREE.MathUtils.clamp(pitch+dy*.002,-.12,.72)});renderer.domElement.addEventListener('pointerup',()=>drag=null);renderer.domElement.addEventListener('pointercancel',()=>drag=null);
+addEventListener('keydown',e=>{input.keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();jump()}if(e.key==='Shift')sprinting=true});addEventListener('keyup',e=>{input.keys[e.key.toLowerCase()]=false;if(e.key==='Shift')sprinting=false});
+let prev=performance.now();function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-prev)/1000,.04);prev=now;
+const k=input.keys,f=(input.y<-.12||k.w||k.arrowup?1:0)-(input.y>.12||k.s||k.arrowdown?1:0),s=(input.x>.12||k.d||k.arrowright?1:0)-(input.x<-.12||k.a||k.arrowleft?1:0);
+const mag=Math.min(1,Math.hypot(f,s)),speed=(sprinting||k.shift?8.3:4.8)*(crouched?.48:1),forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));const dx=(forward.x*f+right.x*s)*speed*dt,dz=(forward.z*f+right.z*s)*speed*dt;player.position.x+=dx;player.position.z+=dz;
+const moving=mag>.08;walk+=moving?dt*(sprinting?15:9):0;if(moving){player.rotation.y=Math.atan2(-dx,-dz);legL.rotation.x=Math.sin(walk)*.62*mag;legR.rotation.x=-Math.sin(walk)*.62*mag;armL.rotation.x=-Math.sin(walk)*.45*mag;armR.rotation.x=Math.sin(walk)*.45*mag}else{legL.rotation.x*=.82;legR.rotation.x*=.82;armL.rotation.x*=.82;armR.rotation.x*=.82}
+vy-=19*dt;player.position.y+=vy*dt;if(player.position.y<=0){player.position.y=0;vy=0;onGround=true}
+if(!freeCam){const target=new THREE.Vector3(player.position.x,player.position.y+1.15,player.position.z);const dist=camDistance;const desired=new THREE.Vector3(target.x+Math.sin(yaw)*dist*Math.cos(pitch),target.y+1.1+Math.sin(pitch)*dist,target.z+Math.cos(yaw)*dist*Math.cos(pitch));camera.position.lerp(desired,1-Math.exp(-dt*7));camera.lookAt(target)}
+status.textContent=(sprinting?'SPRINT':crouched?'CROUCH':moving?'MOVING':'READY')+' · '+player.position.x.toFixed(1)+', '+player.position.z.toFixed(1);renderer.render(scene,camera)}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+camera.position.set(0,4,10);camera.lookAt(0,1,0);$('loading').classList.add('hidden');status.textContent='READY · left joystick to move';requestAnimationFrame(animate);
 </script></body></html>
