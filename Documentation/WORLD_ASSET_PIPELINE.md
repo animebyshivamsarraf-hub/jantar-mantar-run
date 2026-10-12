@@ -64,3 +64,18 @@ These are reference-guided procedural approximations, not a photogrammetry-accur
 - No Gaussian splat described as an editable polygon mesh.
 - No environment asset is considered integrated until a browser/game scene loads it and its coordinates are checked.
 - Keep old project files and history; use incremental commits.
+
+
+## 2026-10-12 — PINOC visual environment pack (generated)
+
+Created three new PINOC Gaussian-splat environments in the existing connected PINOC account for the next visual upgrade pass:
+
+| Module | Asset ID | Visual target |
+|---|---|---|
+| Roadside trees and Delhi buildings | `441d4c79-c5cd-40fe-aefb-e8ade7c1787f` | Mature roadside trees, planted edges, cream/sandstone office buildings, sidewalk/kerb and Delhi street furniture |
+| Observatory approach and road | `79fb09ab-845b-4dd6-a298-2e074aef5dc1` | Sansad Marg approach, worn asphalt, footpath, boundary walls, railings, bollards, trees and shrubs |
+| Observatory garden and yantra surroundings | `4161f98a-9367-47e6-ad27-b34c2061c1a7` | Red-sandstone observatory instruments, lawn, paths, shrubs, mature trees and nearby urban context |
+
+All three tasks completed successfully. Their files are normalised SPZ scenes (one unit = one metre, ground at origin); they are Gaussian splats, not editable polygon meshes. The generation prompts target a plausible reference-guided visual match, not a surveyed sem-to-sem scan.
+
+**Integration status: generated, not yet runtime-integrated.** PINOC returns expiring signed URLs for the SPZ binaries. Do not commit those signed URLs into the game. Next, establish a durable asset-hosting path and a browser-compatible splat renderer/worker bundle, then load and position the modules at the road edges and observatory section. Keep the existing Three.js collision/gameplay geometry as the gameplay/navigation layer while the splats supply visual detail, and profile Android memory/GPU performance before enabling all modules by default.
