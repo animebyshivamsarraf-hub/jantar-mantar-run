@@ -1,28 +1,26 @@
-import { Scene, Environment, OrbitControls, SkyDome } from 'https://esm.sh/@viggle/splat-engine@0.1.1?bundle&target=es2022';
-import JSZip from 'https://esm.sh/jszip@3.10.1?bundle';
-const ARCHIVE='https://d2ol7oe51mr4n9.cloudfront.net/user_3JkuoLy4uHNDjSxNT7XRC1ogkuo/9ff44b0b-7dc8-4c8c-9774-578f3fc19f2e.zip';
+import * as THREE from 'https://esm.sh/three@0.160.0';
+import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
 const canvas=document.querySelector('#canvas'),loading=document.querySelector('#loading'),status=document.querySelector('#loadstatus');
-const titles={road:['Road and footpath','Asphalt, lane markings, crossing and sidewalks.'],trees:['Trees and green verge','This lightweight build loads the road first.'],buildings:['Sansad Marg buildings','This lightweight build loads the road first.'],observatory:['Jantar Mantar observatory','This lightweight build loads the road first.']};
-let scene,current=null;
-async function main(){
- status.textContent='Downloading road preview…';
- const res=await fetch(ARCHIVE);if(!res.ok)throw Error('Road bundle request failed: '+res.status);
- const zip=await JSZip.loadAsync(await res.arrayBuffer());
- const file=Object.keys(zip.files).find(n=>n.toLowerCase().endsWith('.spz'));
- if(!file)throw Error('Road SPZ asset is missing from the bundle.');
- const road=await zip.file(file).async('arraybuffer');
- status.textContent='Starting 3D renderer…';
- scene=await Scene.create(canvas,{fov:45,depth:true});scene.start();
- const controls=new OrbitControls({distance:8,pitch:12,target:{x:0,y:1,z:0}});controls.attach({canvas,cameraEntity:scene.cameraEntity});scene.app.on('update',()=>controls.update());SkyDome.create(scene,{topColor:'#b7d7e7',bottomColor:'#f5e7cd'});
- document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>choose(b.dataset.scene,road)));
- await choose('road',road);
-}
-async function choose(k,bytes){
- document.querySelectorAll('[data-scene]').forEach(b=>b.classList.toggle('active',b.dataset.scene===k));
- document.querySelector('#sceneTitle').textContent=titles[k][0];document.querySelector('#sceneDesc').textContent=titles[k][1];
- if(k!=='road'){status.textContent='Road preview is available first; other environments are not yet wired into this lightweight build.';return}
- loading.classList.remove('hidden');loading.querySelector('h1').textContent='Loading road and footpath…';status.textContent='Loading SPZ road environment…';
- try{if(current){current.destroy?.();current=null}current=await Environment.load(scene,bytes,{filename:'roadside.spz',name:'Road and Footpath'});loading.classList.add('hidden')}
- catch(e){loading.querySelector('h1').textContent='Road scene could not load';status.textContent=String(e.message||e);console.error(e)}
-}
-main().catch(e=>{loading.querySelector('h1').textContent='PINOC world could not start';status.textContent=String(e.message||e);console.error(e)});
+const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene();scene.background=new THREE.Color('#b9d4e6');scene.fog=new THREE.Fog('#b9d4e6',55,180);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,500);camera.position.set(0,7,17);
+const controls=new OrbitControls(camera,canvas);controls.target.set(0,1,0);controls.enableDamping=true;controls.maxPolarAngle=Math.PI*.48;controls.minDistance=5;controls.maxDistance=50;
+scene.add(new THREE.HemisphereLight(0xeaf5ff,0x77664f,2));const sun=new THREE.DirectionalLight(0xfff0d2,2.2);sun.position.set(-12,24,10);scene.add(sun);
+const mat={road:new THREE.MeshStandardMaterial({color:'#454a50'}),side:new THREE.MeshStandardMaterial({color:'#c5c1b6'}),grass:new THREE.MeshStandardMaterial({color:'#66794d'}),line:new THREE.MeshStandardMaterial({color:'#f5f0d8'}),red:new THREE.MeshStandardMaterial({color:'#b64f36'}),cream:new THREE.MeshStandardMaterial({color:'#e4d4b1'}),stone:new THREE.MeshStandardMaterial({color:'#d0bd94'}),green:new THREE.MeshStandardMaterial({color:'#496b3e'}),bark:new THREE.MeshStandardMaterial({color:'#69503b'}),building:new THREE.MeshStandardMaterial({color:'#d7c7a7'}),window:new THREE.MeshStandardMaterial({color:'#778b94'})};
+function mesh(g,m,x,y,z,sx=1,sy=1,sz=1){const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);scene.add(o);return o}
+function box(x,y,z,sx,sy,sz,m){return mesh(new THREE.BoxGeometry(sx,sy,sz),m,x,y,z)}
+function tree(x,z,s=1){mesh(new THREE.CylinderGeometry(.13*s,.2*s,1.5*s,7),mat.bark,x,.75*s,z);mesh(new THREE.SphereGeometry(.85*s,8,6),mat.green,x,1.8*s,z,1,1.25,1);mesh(new THREE.SphereGeometry(.58*s,8,6),mat.green,x+.35*s,2.15*s,z+.1*s)}
+function clearWorld(){while(scene.children.length>2){const o=scene.children[2];scene.remove(o);o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose()}}
+function build(kind){clearWorld();box(0,-.18,0,18,.3,150,mat.grass);box(0,-.02,0,10,.12,150,mat.road);box(-6.1,.03,0,2.1,.18,150,mat.side);box(6.1,.03,0,2.1,.18,150,mat.side);box(-5.02,.08,0,.09,.03,150,mat.line);box(5.02,.08,0,.09,.03,150,mat.line);
+for(let z=-70;z<75;z+=7)box(0,.075,z,.13,.025,3.3,mat.line);for(let x=-4.1;x<=4.1;x+=1.05)box(x,.085,10,.62,.025,2.6,mat.line);
+for(let z=-68;z<70;z+=4){box(-5.05,.12,z,.16,.15,.16,mat.stone);box(5.05,.12,z,.16,.15,.16,mat.stone)}
+for(const side of [-1,1])for(let z=-62;z<65;z+=10){tree(side*7,z,.9);mesh(new THREE.SphereGeometry(.45,7,5),mat.green,side*5.9,.42,z+3,.9,.7,.9)}
+if(kind==='trees')for(const side of [-1,1])for(let z=-60;z<65;z+=5)tree(side*7.4,z,1.05);
+if(kind==='buildings'||kind==='observatory')for(const side of [-1,1])for(let z=-48;z<50;z+=22){box(side*12,2.4,z,7,4.8,13,mat.building);box(side*12,5,z,7.4,.35,13.4,mat.cream);for(let yy=1.5;yy<4;yy+=1.4)for(let xx=-2.2;xx<=2.3;xx+=2.2)box(side*12+xx,yy,z-6.56,.85,.9,.08,mat.window)}
+if(kind==='observatory'){for(let i=0;i<4;i++){const x=-3.3+i*2.2;mesh(new THREE.CylinderGeometry(.12,.12,3.2,16),mat.red,x,1.6,-14+i%2*2);mesh(new THREE.TorusGeometry(1,.13,8,24,Math.PI),mat.cream,x,2.4,-14+i%2*2);box(x,1,-14+i%2*2,1.3,2,.9,mat.red)}box(0,.35,-22,10,.5,13,mat.cream)}
+if(kind==='road')for(const side of [-1,1])for(let z=-35;z<40;z+=10){mesh(new THREE.CylinderGeometry(.09,.12,.8,8),mat.cream,side*4.65,.42,z);mesh(new THREE.CylinderGeometry(.095,.095,.18,8),mat.red,side*4.65,.72,z)}
+const info={road:['Road and footpath','Asphalt road, lane markings, crossing, curbs and roadside bollards.'],trees:['Trees and green verge','Tree-lined roadside with planted verge and shrubs.'],buildings:['Sansad Marg buildings','Government-style buildings lining the broad avenue.'],observatory:['Jantar Mantar observatory','Stylized sandstone astronomical instruments beside the avenue.']};document.querySelectorAll('[data-scene]').forEach(b=>b.classList.toggle('active',b.dataset.scene===kind));document.querySelector('#sceneTitle').textContent=info[kind][0];document.querySelector('#sceneDesc').textContent=info[kind][1]}
+try{build('road');loading.classList.add('hidden');status.textContent='Ready'}catch(e){status.textContent=e.message;console.error(e)}
+document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>build(b.dataset.scene)));
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5))});
+function frame(){requestAnimationFrame(frame);controls.update();renderer.render(scene,camera)}frame();
