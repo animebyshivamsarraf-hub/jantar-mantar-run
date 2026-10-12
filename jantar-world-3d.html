@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Jantar Mantar Run — Full 3D World</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#a8cddd;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:fixed;inset:0;pointer-events:none}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px}.chip{background:#101a2be8;border:1px solid #ffffff45;border-radius:13px;padding:10px 12px;font-size:11px;font-weight:850;box-shadow:0 4px 16px #0002;max-width:70vw}.controls{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));left:12px;right:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:auto}.btn{border:1px solid #ffffff55;border-radius:13px;background:#101a2be8;color:#fff;font-weight:850;padding:11px 13px;font-size:11px;text-decoration:none;touch-action:manipulation}.btn:active{transform:scale(.97)}.note{position:absolute;top:68px;left:12px;max-width:300px;background:#101a2bd9;border:1px solid #ffffff30;border-radius:12px;padding:10px 12px;font-size:11px;line-height:1.45}.status{position:fixed;inset:0;z-index:5;display:grid;place-items:center;background:#101a2b;color:#fff;text-align:center;padding:24px}.status.hide{display:none}.status-card{max-width:360px;line-height:1.5}.status-card h1{font-size:22px;margin:0 0 8px}.status-card p{font-size:13px;color:#d6e2ed}
+</style>
+</head>
+<body>
+<div id="loading" class="status"><div class="status-card"><h1>Loading the 3D Jantar Mantar world…</h1><p>Fetching the committed revision 7 scene. First load may take a few seconds.</p></div></div>
+<div class="hud"><div class="top"><div class="chip">JANTAR MANTAR RUN · FULL 3D WORLD</div><div class="chip" id="stats">REVISION 7</div></div><div class="note"><b>Explore the full 3D scene</b><br>Drag to orbit · pinch to zoom · two-finger drag to pan. This is the editable 3D Jutsu scene export, separate from the endless-runner gameplay.</div><div class="controls"><a class="btn" href="./">← BACK TO GAME</a><button class="btn" id="reset">RESET CAMERA</button><a class="btn" href="https://higgsfield.ai/3d-jutsu/a500419b-8e26-4837-bba6-f1911675b305" target="_blank" rel="noopener">OPEN EDITABLE SCENE ↗</a></div></div>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+import JSZip from 'https://esm.sh/jszip@3.10.1';
+
+const loading=document.querySelector('#loading');
+const canvas=document.createElement('canvas');
+document.body.insertBefore(canvas,document.body.firstChild);
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0xa8cddd);
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,10000);
+scene.add(new THREE.HemisphereLight(0xe9f5ff,0x635343,2.0));
+const sun=new THREE.DirectionalLight(0xffe7c5,2.2);sun.position.set(-60,100,70);scene.add(sun);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=.06;
+let homePosition=new THREE.Vector3(20,20,30),homeTarget=new THREE.Vector3();
+function resetCamera(){camera.position.copy(homePosition);controls.target.copy(homeTarget);controls.update()}
+document.querySelector('#reset').addEventListener('click',resetCamera);
+try{
+ const response=await fetch('https://d2ol7oe51mr4n9.cloudfront.net/user_3JkuoLy4uHNDjSxNT7XRC1ogkuo/0982d284-62b7-45b6-880d-b21008316592.zip');
+ if(!response.ok)throw new Error('World archive request failed: HTTP '+response.status);
+ const zip=await JSZip.loadAsync(await response.arrayBuffer());
+ const file=zip.file('jantar-mantar-rev7.glb');
+ if(!file)throw new Error('The world model was not found inside the archive.');
+ const bytes=await file.async('arraybuffer');
+ const gltf=await new GLTFLoader().parseAsync(bytes,'');
+ scene.add(gltf.scene);
+ const bounds=new THREE.Box3().setFromObject(gltf.scene);
+ const size=bounds.getSize(new THREE.Vector3());
+ const center=bounds.getCenter(new THREE.Vector3());
+ const span=Math.max(size.x,size.y,size.z,10);
+ homeTarget.copy(center);
+ homePosition.copy(center).add(new THREE.Vector3(span*.72,span*.48,span*.82));
+ camera.near=Math.max(.1,span/1000);camera.far=span*12;camera.updateProjectionMatrix();
+ resetCamera();
+ const meshes=[];gltf.scene.traverse(o=>{if(o.isMesh)meshes.push(o)});
+ document.querySelector('#stats').textContent='REV 7 · '+meshes.length+' MESHES';
+ loading.classList.add('hide');
+}catch(e){
+ loading.innerHTML='<div class="status-card"><h1>World could not load</h1><p>'+String(e.message||e).replace(/[<>&]/g,'')+'</p><p>Open the editable source scene instead, or reload this page.</p><a class="btn" href="https://higgsfield.ai/3d-jutsu/a500419b-8e26-4837-bba6-f1911675b305" target="_blank" rel="noopener">OPEN 3D JUTSU ↗</a></div>';
+ console.error(e);
+}
+function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.5))});
+</script>
+</body>
+</html>
