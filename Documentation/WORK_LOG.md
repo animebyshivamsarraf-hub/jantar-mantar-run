@@ -47,3 +47,13 @@
 - Added `Documentation/PINOC_MASTER_ENVIRONMENT.md` with the stable asset ID, prompt intent, and integration requirements.
 - PINOC reports the environment task succeeded. Its signed download URL expires, and the SPZ binary is not yet in this repository. Do not claim it has been committed as a binary.
 - Next: load the PINOC splat in the target renderer and visually compare it with the user-provided references; then align the player route and add separate collision/gameplay proxies and modular road streaming.
+
+
+## 2026-10-12 — Playable browser world landmark pass
+- Updated the existing `index.html` game, not a new project. The browser game retains its opening protest area, touch/keyboard lane movement, jump/slide, obstacles, chase HUD and restart loop.
+- Replaced the three generic observatory blocks with distinct procedural landmark-inspired forms: a triangular Samrat Yantra-style gnomon with scale ticks and plinth, a concave Jai Prakash-style bowl with radial/concentric scale geometry, and a Ram Yantra-style circular instrument wall.
+- Fixed triangle index construction for the bowl and circular wall meshes in a follow-up commit.
+- Code commits: `d620e60f2bc80c0e022a1963d2c32d03087659e3` (landmark pass), `7ad4952d7479760912c2240bdfa4ed80b76d7790` (mesh triangulation fix).
+- Browser preview target: https://animebyshivamsarraf-hub.github.io/jantar-mantar-run/
+- Deployment and real-device/browser interaction have **not been verified from this session**. Open the GitHub Actions page to confirm Pages deployment before treating the latest commit as live.
+- The procedural landmarks are still reference-guided approximations, not a sem-to-sem survey-accurate Jantar Mantar model. The PINOC SPZ environments and PINOC character/motion assets are still not loaded into this game runtime; signed SPZ links expire and must not be hardcoded into committed HTML. Do not describe this build as a fully integrated photoreal game.
