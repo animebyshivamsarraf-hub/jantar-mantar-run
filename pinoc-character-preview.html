@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Jantar Mantar Run — PINOC Character Preview</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b1118;color:#f3f6fa;font:14px system-ui,sans-serif}canvas{display:block;width:100%;height:100%;touch-action:none}#stage{position:fixed;inset:0}.panel{position:fixed;background:#101923e8;border:1px solid #ffffff25;border-radius:14px;padding:12px;backdrop-filter:blur(10px)}#info{top:12px;left:12px;right:12px;display:flex;justify-content:space-between;gap:12px;pointer-events:none}#controls{bottom:12px;left:12px;right:12px;display:flex;flex-wrap:wrap;gap:7px;justify-content:center}.btn{background:#1a2a39;color:#fff;border:1px solid #ffffff35;border-radius:10px;padding:12px 14px;font-weight:800;min-width:80px;touch-action:manipulation}.btn:active,.btn.active{background:#2c9077}.small{font-size:11px;color:#b8c6d3;line-height:1.5}.title{font-weight:900;letter-spacing:.08em}#status{position:fixed;top:100px;left:50%;transform:translateX(-50%);max-width:92%;text-align:center;background:#101923e8;padding:9px 12px;border-radius:10px;font-size:12px}#loading{position:fixed;inset:0;display:grid;place-items:center;background:#0b1118;color:#fff;z-index:5;text-align:center;padding:24px} @media(max-width:500px){.btn{min-width:67px;padding:11px 9px;font-size:11px}.small{font-size:10px}#info{top:8px;left:8px;right:8px}.panel{padding:9px}}
+</style></head><body><div id="stage"></div><div id="info"><div class="panel"><div class="title">JANTAR MANTAR RUN</div><div class="small">PINOC CHARACTER · URBAN EXPLORER</div><div class="small">3D SKELETAL ANIMATION TEST</div></div><div class="panel small" id="mode">STATE: LOADING</div></div><div id="status">Loading PINOC character and animations…</div><div id="controls"><button class="btn" data-anim="idle">IDLE</button><button class="btn" data-anim="walk">WALK</button><button class="btn" data-anim="run">RUN</button><button class="btn" data-anim="sprint">SPRINT</button><button class="btn" data-anim="jump">JUMP</button><button class="btn" data-anim="crouch">CROUCH</button><button class="btn" data-anim="climb">CLIMB</button><button class="btn" data-anim="vault">VAULT</button></div><div id="loading"><div><h2>PINOC · Urban Explorer</h2><p id="loadtext">Starting 3D scene…</p><p class="small">The first load may take a little while on mobile data.</p></div></div>
+<script type="module">
+import { Scene, Character, Animation, OrbitControls, SkyDome, Grid } from 'https://esm.sh/@viggle/splat-engine@0.1.1';
+const urls={
+ character:'https://cdn.viggle.ai/multiview/2861116e-69f6-4205-a20a-afe8fc436744_generated/9be833f114d2/gpt-image2/front_static.performance.vsplat?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=iMkkqhr3tMVCmWSQIArAPAI5tRM',
+ idle:'https://cdn.viggle.ai/3d-editor-assets/b17fe31f-292a-49ab-83f2-64f1290a45a1_Standing_Idle.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=17SPlUsgQb1DeeXZEvY68Mmsg-U',
+ walk:'https://cdn.viggle.ai/3d-editor-assets/45a5bd7d-700f-4041-9dbc-6e4dcffcd954_Walking.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=4pIyPESFRboMB6TvOPeeMmvQusI',
+ run:'https://cdn.viggle.ai/3d-editor-assets/15beccf3-c030-4b5b-af3d-00e3dc6d2f0a_Running.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=DJOdwmo4WrDaqDYlY8nSQN6M1-8',
+ sprint:'https://cdn.viggle.ai/3d-editor-assets/28aca544-4a7f-47e3-b75d-596b079f6137_Sprinting_Forward.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=bMyjdmYAXkN5JkgCCgIwsH--kAE',
+ jump:'https://cdn.viggle.ai/3d-editor-assets/51e2faff-6851-496a-9d23-40e34a865064_Jump.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=WzvRCysTJ1F-262FFx3aMaCIbf8',
+ crouch:'https://cdn.viggle.ai/3d-editor-assets/32251c58-5b55-4143-abc1-ef8cccd0332f_Crouching_Idle.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=QJi8_YRo9zwBs_KBtnbxbagNAlY',
+ climb:'https://cdn.viggle.ai/3d-editor-assets/b892a3a8-9813-47bf-8d29-b453bc935fea_Climb_Over_Ledge.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=ktmvw3HfQ9dQG9pGCwQ9gHOTOiI',
+ vault:'https://cdn.viggle.ai/3d-editor-assets/324c6153-f9a8-4e38-966f-ed667028b5a0_Vault_Over_Obstacle.glb?Expires=1791813600&KeyName=vigglecloudcdn2&Signature=8mt4AmARVDMWk_UR8XnAw2bioic'
+};
+const status=document.querySelector('#status'),loadtext=document.querySelector('#loadtext'),loading=document.querySelector('#loading'),mode=document.querySelector('#mode');
+let character,active='idle';
+try{
+ const scene=await Scene.create(document.querySelector('#stage').appendChild(document.createElement('canvas')),{fov:45});
+ scene.start();
+ SkyDome.create(scene,{topColor:'#8eb7ca',bottomColor:'#d9d4c2'});
+ Grid.create(scene);
+ const controls=new OrbitControls({distance:4.5,pitch:8,target:{x:0,y:0.85,z:0}});
+ controls.attach({canvas:scene.canvas,cameraEntity:scene.cameraEntity});
+ scene.app.on('update',()=>controls.update());
+ loadtext.textContent='Loading Urban Explorer character…';
+ character=await Character.load(scene,urls.character);
+ loadtext.textContent='Loading animation clips…';
+ const names=['idle','walk','run','sprint','jump','crouch','climb','vault'];
+ for(let i=0;i<names.length;i++){const n=names[i];status.textContent='Loading animation '+(i+1)+'/'+names.length+': '+n.toUpperCase();await Animation.loadGlb(scene,urls[n],n);}
+ character.playAnimation('idle',{loop:true});
+ loading.style.display='none';status.textContent='Character ready. Tap an animation to preview it; drag to orbit.';
+ mode.textContent='STATE: IDLE';
+ document.querySelectorAll('[data-anim]').forEach(b=>b.addEventListener('click',()=>{const n=b.dataset.anim;active=n;character.crossfadeTo(n,{duration:.25,loop:!['jump','climb','vault'].includes(n)});mode.textContent='STATE: '+n.toUpperCase();document.querySelectorAll('[data-anim]').forEach(x=>x.classList.toggle('active',x===b));status.textContent='Playing '+n.toUpperCase()+' animation';}));
+}catch(err){console.error(err);loading.style.display='grid';loadtext.textContent='The 3D preview could not load.';status.textContent='Load error: '+(err?.message||String(err))+' — check internet and reload.';}
+</script></body></html>
