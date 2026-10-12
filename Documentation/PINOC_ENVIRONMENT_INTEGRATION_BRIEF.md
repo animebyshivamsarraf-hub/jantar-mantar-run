@@ -41,3 +41,7 @@ All listed scenes were marked normalized by PINOC: load at identity transform (n
 - [ ] Existing game mechanics still pass smoke tests.
 - [ ] Failure to load the splat renderer displays a useful fallback instead of a blank page.
 - [ ] Documentation and UI clearly distinguish generated approximation from exact scanned geometry.
+
+## First durable asset prepared
+- Roadside scene SPZ was downloaded from the PINOC-generated scene and uploaded as a durable archive: https://d2ol7oe51mr4n9.cloudfront.net/user_3JkuoLy4uHNDjSxNT7XRC1ogkuo/9ff44b0b-7dc8-4c8c-9774-578f3fc19f2e.zip
+- Archive contains `roadside.spz` (about 17 MB compressed). It is prepared for integration, not yet rendered by the deployed game.
