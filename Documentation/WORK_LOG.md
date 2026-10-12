@@ -14,8 +14,8 @@
 - Added `.github/workflows/deploy-pages.yml` to attempt deployment to GitHub Pages when the prototype changes.
 
 ## Not completed / not verified
-- Browser prototype has been committed but has **not yet been browser-tested**. Do not claim it works until the deployment and actual interaction are checked.
-- GitHub Pages deployment status is not confirmed; the Actions API showed no workflow runs immediately after commits.
+- Browser prototype is deployed at the GitHub Pages URL and was smoke-tested in headless Chromium at a 412×915 mobile viewport on 2026-10-12. Start, protest/chase transition, lane buttons, jump/slide controls, distance/HUD updates, detention and restart all responded; no browser console/page errors were observed in the test run.
+- The test exposed an immediate-detention bug caused by police spawning ahead of the player. Fixed it by spawning police behind the player; the retest showed distance increasing and the chase entering LEVEL 1 before normal game-over/restart. This is a browser smoke test, not a real-device or production QA pass.
 - The prototype currently uses procedural Three.js geometry and does not load the PINOC Gaussian-splat environment or either PINOC character.
 - `COCKROACH` is currently a prototype label on a simple placeholder avatar, not verified on the final characters.
 - The user-provided FBX named `Endless Runner (1)(1).fbx` has not been validated in Unity.
@@ -24,11 +24,11 @@
 - This repository still does not contain a verified Android build or production-ready game.
 
 ## Immediate next steps
-1. Confirm GitHub Pages workflow succeeds and open the deployed page on desktop/mobile.
-2. Fix prototype bugs discovered by actual playtesting; confirm touch controls, start/protest transition, obstacles, difficulty escalation and detention/restart.
-3. Improve looping world sections so Delhi scenery and protest/traffic details continue as the runner advances.
-4. Decide how to render PINOC splat assets alongside performant collision/gameplay geometry; benchmark Android.
-5. Add the user's reference-video details and meme audio when supplied; then build/test a real mobile package.
+1. Import the PINOC SPZ environment through a supported durable asset pipeline or serve it from authenticated/stable hosting; do not hardcode expiring signed URLs.
+2. Integrate a compatible PINOC character/motion runtime or export format, then benchmark it against the placeholder avatar on Android.
+3. Improve endless-world streaming so scenery, landmarks and route modules remain coherent during long runs.
+4. Add the user's reference-video details and meme audio when supplied.
+5. Build and test a real Android package; the browser prototype is not an Android APK.
 
 
 ## 2026-10-11 — 3D environment blockout milestone
@@ -57,3 +57,13 @@
 - Browser preview target: https://animebyshivamsarraf-hub.github.io/jantar-mantar-run/
 - Deployment and real-device/browser interaction have **not been verified from this session**. Open the GitHub Actions page to confirm Pages deployment before treating the latest commit as live.
 - The procedural landmarks are still reference-guided approximations, not a sem-to-sem survey-accurate Jantar Mantar model. The PINOC SPZ environments and PINOC character/motion assets are still not loaded into this game runtime; signed SPZ links expire and must not be hardcoded into committed HTML. Do not describe this build as a fully integrated photoreal game.
+
+
+## 2026-10-12 — Browser smoke test and chase-start fix
+- Verified the published GitHub Pages main URL returns HTTP 200 and contains the current landmark scene and 3D Jutsu link.
+- Ran Playwright/Chromium against the live mobile viewport (412×915). The first test found the chase immediately entered `DETAINED`: police were spawned at positive Z in front of the player, satisfying the catch condition on the first frame.
+- Fixed the existing `index.html` by placing police behind the player at negative Z so they approach during the chase. Commit: `9327d3982e2cbfb3049ab3937bf52dc26b3da57b`.
+- Retested live after deployment: after pressing Start and Protest, distance advanced to 3–4 m and HUD showed `LEVEL 1`; after the chase progressed, detention appeared and `TRY AGAIN` returned to the start overlay. Lane, jump and slide controls were clicked during the test. No console/page errors were recorded.
+- Also smoke-tested `fresh-world-3d.html` on mobile Chromium: page title and movement/quality controls responded, with no console/page errors.
+- Current hosted 3D Jutsu project is revision 7 with 663 scene objects (599 meshes), one delivery camera, and two lights. A 640×360 render operation succeeded; the interactive scene review link is below.
+- Remaining real work: PINOC Gaussian-splat environments and the rigged PINOC character/running motion are not imported into the browser runtime, and no Android APK exists. Those require a durable asset transfer/compatible splat renderer and real-device performance validation. The environment is still procedural/reference-guided, not survey-accurate.
