@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>JANTAR MANTAR RUN — Delhi Environment</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#b9d8e8;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#fff}#view{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:fixed;inset:0;pointer-events:none}.top{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.brand{background:#101d2bdd;border:1px solid #ffffff35;border-radius:14px;padding:10px 13px;box-shadow:0 5px 20px #12202b33}.brand strong{display:block;font-size:13px;letter-spacing:1px}.brand span{font-size:11px;color:#b9d9e8}.pill{background:#101d2bdd;border:1px solid #ffffff35;border-radius:99px;padding:9px 12px;font-size:11px}
+#help{position:absolute;top:86px;left:12px;background:#101d2bcc;border-radius:10px;padding:8px 10px;font-size:11px;color:#e8f4fa;max-width:230px}
+#joystick{pointer-events:auto;position:absolute;bottom:24px;left:22px;width:112px;height:112px;border-radius:50%;background:#12283b66;border:2px solid #ffffff70;touch-action:none;box-shadow:inset 0 0 20px #fff1}
+#stick{position:absolute;left:32px;top:32px;width:44px;height:44px;border-radius:50%;background:#edf8ffcc;border:2px solid white;box-shadow:0 3px 12px #0005}
+#actions{pointer-events:auto;position:absolute;right:18px;bottom:28px;display:flex;gap:10px;align-items:flex-end}
+.act{width:64px;height:64px;border-radius:50%;border:1px solid #ffffffa0;background:#132a40c9;color:white;font-weight:800;font-size:12px;touch-action:none;box-shadow:0 5px 18px #0003}.act:active{background:#d97726}
+#hint{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);font-size:10px;color:#fff;text-shadow:0 1px 4px #000;white-space:nowrap}
+#loading{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(#a6cddd,#e9d1a1);color:#17283a;font-weight:700;z-index:5}
+@media(min-width:800px){#joystick{width:125px;height:125px}#stick{left:37px;top:37px}.act{width:72px;height:72px}}
+</style>
+</head>
+<body><div id="view"></div><div id="loading">BUILDING DELHI ENVIRONMENT…</div>
+<div id="hud"><div class="top"><div class="brand"><strong>JANTAR MANTAR RUN</strong><span>DELHI CHASE · ENVIRONMENT TEST</span></div><div class="pill" id="location">📍 CENTRAL DELHI</div></div>
+<div id="help">Explore the streets · Joystick to move · RUN to sprint · JUMP to hop</div>
+<div id="joystick"><div id="stick"></div></div><div id="actions"><button class="act" id="jump">JUMP</button><button class="act" id="run">RUN</button></div><div id="hint">Prototype world · landmarks are game-inspired, not survey-accurate</div></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
+const mount=document.querySelector('#view');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xa9cfdf);scene.fog=new THREE.Fog(0xa9cfdf,90,330);
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,700);
+const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;mount.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xe5f6ff,0x8b6548,2.0));
+const sun=new THREE.DirectionalLight(0xffe0a7,2.2);sun.position.set(-45,90,35);scene.add(sun);
+const mat=(color,roughness=1)=>new THREE.MeshStandardMaterial({color,roughness});
+const asphalt=mat(0x343b42),sidewalk=mat(0xc7bba5),sand=mat(0xd7c49e),white=mat(0xf3e8d2),red=mat(0xa44b36),cream=mat(0xe8d6b5),green=mat(0x39714b),leaf=mat(0x4f8051),darkgreen=mat(0x28583d),gold=mat(0xc49b53),glass=mat(0x779da7),black=mat(0x20272c),yellow=mat(0xdba82e),blue=mat(0x3c6f9a);
+function box(x,y,z,sx,sy,sz,m, parent=scene){const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),m);o.position.set(x,y,z);parent.add(o);return o}
+function cylinder(x,y,z,rt,rb,h,m,seg=12,parent=scene){const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),m);o.position.set(x,y,z);parent.add(o);return o}
+function road(x,z,w,d){box(x,-.08,z,w,.16,d,asphalt);if(w>d){for(let a=x-w/2+4;a<x+w/2-2;a+=7)box(a,.008,z,.28,.02,1.8,white)}else{for(let a=z-d/2+4;a<z+d/2-2;a+=7)box(x,.008,a,1.8,.02,.28,white)}}
+function tree(x,z,s=1){cylinder(x,1.35*s,z,.18*s,.27*s,2.7*s,red,8);const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.25*s,1),Math.random()>.5?leaf:darkgreen);crown.position.set(x,3.1*s,z);scene.add(crown);cylinder(x,.12,z,.55*s,.55*s,.2,sand,10)}
+function building(x,z,w,d,h,style=0){const pal=[cream,white,sand,red,mat(0xd4c2a7)][style%5];box(x,h/2,z,w,h,d,pal);box(x,h+.12,z,w+.3,.24,d+.3,style===3?red:gold);
+ const floors=Math.max(2,Math.floor(h/2.7));for(let f=0;f<floors;f++){let y=1.2+f*2.5;if(y>h-1)continue;for(let px=x-w/2+1.2;px<x+w/2-.6;px+=2.3){box(px,y,z-d/2-.015,.8,1.15,.05,glass);box(px,y-.68,z-d/2-.03,1,.09,.1,gold)}}
+ for(let side of [-1,1]){box(x, h*.63,z+side*(d/2+.02),w*.84,.12,.08,gold)}
+ if(style===1||style===3){for(let px=x-w/2+1;px<x+w/2;px+=2.5){box(px,h+.4,z, .16,.6,d+.15,gold)}}
+}
+function monument(x,z){ // stylized Jantar Mantar-inspired astronomical instruments
+ const base=box(x,.45,z,24,.9,20,red);box(x,1.05,z,21,.3,17,white);
+ // large triangular sundial form
+ const tri=new THREE.Shape();tri.moveTo(-7,0);tri.lineTo(7,0);tri.lineTo(0,11);tri.closePath();
+ const geom=new THREE.ExtrudeGeometry(tri,{depth:1.4,bevelEnabled:false});const ob=new THREE.Mesh(geom,red);ob.rotation.y=0;ob.position.set(x,1.2,z-1);scene.add(ob);
+ box(x,5.1,z+1,1.1,8.2,1.2,white);box(x,9.2,z+1,10,.55,1.4,gold);
+ for(let i=0;i<5;i++){const a=new THREE.Mesh(new THREE.TorusGeometry(3+i*.75,.18,6,32,Math.PI),gold);a.rotation.x=Math.PI/2;a.position.set(x,2.2+i*.7,z+4);scene.add(a)}
+ // low perimeter wall
+ for(let i=-1;i<=1;i++){box(x+i*8,.6,z-10,5,1.2,.5,white);box(x+i*8,.6,z+10,5,1.2,.5,white)}
+}
+function indiaGate(x,z){cylinder(x,5,z,.1,.1,10,gold);box(x,5,z,11,10,3,cream);box(x,9.2,z,12,.8,3.8,white);box(x,1,z,13,1,5,red);box(x,5.3,z+1.56,3,5.8,.22,asphalt);box(x,11,z,5,.7,4,gold)}
+// terrain & road network
+box(0,-.5,0,360,1,360,green);
+road(0,0,18,330);road(-48,0,14,330);road(48,0,14,330);road(0,-48,330,14);road(0,48,330,14);road(0,105,250,12);road(0,-105,250,12);
+for(let z=-145;z<=145;z+=28){for(let x=-145;x<=145;x+=30){if(Math.abs(x)<30||Math.abs(z)<28)continue;building(x,z,12+Math.random()*6,12+Math.random()*5,7+Math.random()*17,Math.floor(Math.random()*5))}}
+for(let z=-140;z<=140;z+=18){tree(-14,z,.75+Math.random()*.35);tree(14,z,.75+Math.random()*.35);tree(-63,z,.9);tree(63,z,.9)}
+// Jantar Mantar district north
+monument(-4,-68);box(-4,.1,-88,52,.2,38,green);
+// Connaught Place inspired circular colonnade
+for(let i=0;i<28;i++){const a=i/28*Math.PI*2;const x=Math.cos(a)*58,z=Math.sin(a)*58-5;const b=box(x,4,z,10,8,8,white);b.rotation.y=-a;for(let k=-1;k<=1;k++){const p=box(x+Math.cos(a+Math.PI/2)*k*2,3,z+Math.sin(a+Math.PI/2)*k*2,.35,6,.35,white);p.rotation.y=-a}}
+cylinder(0,.05,-5,19,19,.1,green,48);cylinder(0,.12,-5,8,8,.12,gold,48);cylinder(0,.2,-5,3.2,3.2,.12,red,32);
+for(let i=0;i<16;i++){let a=i*Math.PI/8;tree(Math.cos(a)*28,Math.sin(a)*28-5,.8)}
+// India Gate and lawns south
+indiaGate(0,113);box(0,.02,137,90,.08,55,green);
+for(let x=-50;x<=50;x+=12){tree(x,137,.9)}
+// roadside market kiosks
+for(let i=0;i<12;i++){let x=-32+i*5.7;box(x,1.3,26,4.2,2.6,4.2,[yellow,red,blue,green][i%4]);box(x,2.75,26,4.6,.3,4.5,white);box(x,1.8,23.85,2.5,1.2,.12,glass)}
+// traffic props
+function car(x,z,color,rot=0){const g=new THREE.Group();g.position.set(x,.15,z);g.rotation.y=rot;const body=new THREE.Mesh(new THREE.BoxGeometry(2.2,.8,4),mat(color));body.position.y=.65;g.add(body);const top=new THREE.Mesh(new THREE.BoxGeometry(1.55,.65,1.8),blue);top.position.set(0,1.3,-.1);g.add(top);for(const wx of [-1,1])for(const wz of [-1.25,1.25]){const wh=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.18,10),black);wh.rotation.z=Math.PI/2;wh.position.set(wx, .35,wz);g.add(wh)}scene.add(g);return g}
+const cars=[];for(let i=0;i<9;i++)cars.push(car(-7, -145+i*32, [0xc94435,0xe4b333,0x477eaa,0xd8d6cc][i%4],0));for(let i=0;i<5;i++)cars.push(car(42, -120+i*48,0x3c8b62,Math.PI));
+const auto=car(-18,35,0xd6a83d,0);auto.scale.set(.72,.8,.75);
+// player low-poly human
+const player=new THREE.Group();scene.add(player);player.position.set(0,0,12);
+const skin=mat(0xb97950),shirt=mat(0x176d86),pants=mat(0x293c51),shoe=mat(0x20252a);
+cylinder(0,1.5,0,.38,.42,1.05,shirt,10,player);const head=new THREE.Mesh(new THREE.SphereGeometry(.32,12,10),skin);head.position.y=2.35;player.add(head);
+const hair=new THREE.Mesh(new THREE.SphereGeometry(.33,12,7,0,Math.PI*2,0,Math.PI*.55),black);hair.position.y=2.49;player.add(hair);
+const legs=[];for(let s of [-1,1]){const leg=box(s*.18,.63,0,.24,.95,.28,pants,player);const foot=box(s*.18,.13,-.1,.3,.2,.48,shoe,player);legs.push(leg)}
+const arms=[];for(let s of [-1,1]){const arm=box(s*.48,1.56,0,.2,.78,.22,skin,player);arm.rotation.z=s*.1;arms.push(arm)}
+// street lamps
+for(let z=-145;z<155;z+=18){for(let x of [-12,12]){cylinder(x,2.5,z,.09,.12,5,black,8);box(x,5,z,1.2,.12,.25,gold)}}
+const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+let joyX=0,joyY=0,running=false,jumping=false,vy=0,step=0;
+const joy=document.querySelector('#joystick'),stick=document.querySelector('#stick');let joyId=null;
+function joyMove(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy),max=36;if(len>max){dx*=max/len;dy*=max/len}joyX=dx/max;joyY=dy/max;stick.style.transform=`translate(${dx}px,${dy}px)`}
+joy.addEventListener('pointerdown',e=>{joyId=e.pointerId;joy.setPointerCapture(joyId);joyMove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e)});function joyEnd(){joyId=null;joyX=joyY=0;stick.style.transform='translate(0,0)'}joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
+document.querySelector('#run').addEventListener('pointerdown',e=>{e.preventDefault();running=true});['pointerup','pointercancel','pointerleave'].forEach(ev=>document.querySelector('#run').addEventListener(ev,()=>running=false));
+document.querySelector('#jump').addEventListener('pointerdown',e=>{e.preventDefault();if(player.position.y<.05){vy=7.2;jumping=true}});
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function update(dt){let f=(keys.w||keys.arrowup?-1:0)+(keys.s||keys.arrowdown?1:0)+joyY;let side=(keys.a||keys.arrowleft?-1:0)+(keys.d||keys.arrowright?1:0)+joyX;
+const len=Math.hypot(f,side);if(len>.08){f/=Math.max(1,len);side/=Math.max(1,len);const speed=running||keys.shift?13:6.5;const ang=Math.atan2(side,-f);player.rotation.y=ang;player.position.x+=Math.sin(ang)*speed*dt;player.position.z+=Math.cos(ang)*speed*dt;step+=dt*speed;legs[0].rotation.x=Math.sin(step*1.4)*.55;legs[1].rotation.x=-Math.sin(step*1.4)*.55;arms[0].rotation.x=-Math.sin(step*1.4)*.4;arms[1].rotation.x=Math.sin(step*1.4)*.4}else{legs.forEach(l=>l.rotation.x*=.8);arms.forEach(a=>a.rotation.x*=.8)}
+player.position.x=clamp(player.position.x,-165,165);player.position.z=clamp(player.position.z,-160,160);
+if(player.position.y>.0||vy>0){player.position.y+=vy*dt;vy-=18*dt;if(player.position.y<0){player.position.y=0;vy=0;jumping=false}}
+const desired=new THREE.Vector3(player.position.x,player.position.y+5.5,player.position.z+10.5);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(player.position.x,player.position.y+1.2,player.position.z-1);
+const z=player.position.z;document.querySelector('#location').textContent=z<-40?'📍 JANTAR MANTAR':(z<35?'📍 CONNAUGHT PLACE':(z>85?'📍 INDIA GATE':'📍 CENTRAL DELHI'));
+}
+let prev=performance.now();function loop(now){const dt=Math.min(.035,(now-prev)/1000);prev=now;update(dt);renderer.render(scene,camera);requestAnimationFrame(loop)}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.5))});
+document.querySelector('#loading').remove();requestAnimationFrame(loop);
+</script></body></html>
