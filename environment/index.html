@@ -6,7 +6,7 @@
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#b9d8e8;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#fff}#view{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}
 #hud{position:fixed;inset:0;pointer-events:none}.top{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.brand{background:#101d2bdd;border:1px solid #ffffff35;border-radius:14px;padding:10px 13px;box-shadow:0 5px 20px #12202b33}.brand strong{display:block;font-size:13px;letter-spacing:1px}.brand span{font-size:11px;color:#b9d9e8}.pill{background:#101d2bdd;border:1px solid #ffffff35;border-radius:99px;padding:9px 12px;font-size:11px}
-#help{position:absolute;top:86px;left:12px;background:#101d2bcc;border-radius:10px;padding:8px 10px;font-size:11px;color:#e8f4fa;max-width:230px}
+#help{position:absolute;top:86px;left:12px;background:#101d2bcc;border-radius:10px;padding:8px 10px;font-size:11px;color:#e8f4fa;max-width:230px}#stats{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#101d2bdd;border:1px solid #ffffff35;border-radius:12px;padding:7px 10px;font-size:11px;text-align:center}#mission{position:absolute;top:130px;right:12px;background:#101d2bcc;border-radius:10px;padding:8px 10px;font-size:11px}#aim{pointer-events:auto;position:absolute;right:24px;bottom:116px;width:56px;height:56px;border-radius:50%;background:#132a40c9;color:white;border:1px solid #ffffffa0;font-weight:800}#fire{pointer-events:auto;position:absolute;right:92px;bottom:36px;width:72px;height:72px;border-radius:50%;background:#8f2c21dd;color:white;border:2px solid #ffffffa0;font-weight:900}#look{position:absolute;right:15px;top:44%;width:110px;height:85px;pointer-events:auto;touch-action:none;border:1px solid #ffffff28;border-radius:18px;background:#101d2b22}
 #joystick{pointer-events:auto;position:absolute;bottom:24px;left:22px;width:112px;height:112px;border-radius:50%;background:#12283b66;border:2px solid #ffffff70;touch-action:none;box-shadow:inset 0 0 20px #fff1}
 #stick{position:absolute;left:32px;top:32px;width:44px;height:44px;border-radius:50%;background:#edf8ffcc;border:2px solid white;box-shadow:0 3px 12px #0005}
 #actions{pointer-events:auto;position:absolute;right:18px;bottom:28px;display:flex;gap:10px;align-items:flex-end}
@@ -17,9 +17,9 @@
 </style>
 </head>
 <body><div id="view"></div><div id="loading">BUILDING DELHI ENVIRONMENT…</div>
-<div id="hud"><div class="top"><div class="brand"><strong>JANTAR MANTAR RUN</strong><span>DELHI CHASE · ENVIRONMENT TEST</span></div><div class="pill" id="location">📍 CENTRAL DELHI</div></div>
+<div id="hud"><div class="top"><div class="brand"><strong>JANTAR MANTAR RUN</strong><span>DELHI CHASE · ENVIRONMENT TEST</span></div><div class="pill" id="location">📍 CENTRAL DELHI</div></div><div id="stats">ALIVE <b>48</b> · KILLS <b id="kills">0</b> · HP <b id="hp">200</b>/200</div><div id="mission">MISSION<br><b id="missionText">Explore Jantar Mantar</b></div>
 <div id="help">Explore the streets · Joystick to move · RUN to sprint · JUMP to hop</div>
-<div id="joystick"><div id="stick"></div></div><div id="actions"><button class="act" id="jump">JUMP</button><button class="act" id="run">RUN</button></div><div id="hint">3D prototype · optional GLB models load online · car model: Ferrari GLB (CC BY 4.0, three.js sample asset)</div></div>
+<div id="joystick"><div id="stick"></div></div><div id="look" aria-label="Drag to look around"></div><button id="aim">AIM</button><button id="fire">FIRE</button><div id="actions"><button class="act" id="jump">JUMP</button><button class="act" id="run">SPRINT</button></div><div id="hint">3D prototype · optional GLB models load online · car model: Ferrari GLB (CC BY 4.0, three.js sample asset)</div></div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/loaders/GLTFLoader.js';
@@ -89,7 +89,6 @@ const auto=car(-18,35,0xd6a83d,0);auto.scale.set(.72,.8,.75);
 // Player root; local procedural fallback stays available if external GLB fails
 const player=new THREE.Group();scene.add(player);player.position.set(0,0,12);
 let importedPlayer=null, playerMixer=null, playerWalk=null, playerRun=null;
-const gltfLoader=new GLTFLoader();
 gltfLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/RobotExpressive/RobotExpressive.glb',gltf=>{
   importedPlayer=gltf.scene; importedPlayer.scale.setScalar(1.25); importedPlayer.position.set(0,0,0);
   importedPlayer.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
@@ -113,22 +112,26 @@ const arms=[];for(let s of [-1,1]){const arm=box(s*.48,1.56,0,.2,.78,.22,skin,pl
 // street lamps
 for(let z=-145;z<155;z+=18){for(let x of [-12,12]){cylinder(x,2.5,z,.09,.12,5,black,8);box(x,5,z,1.2,.12,.25,gold)}}
 const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-let joyX=0,joyY=0,running=false,jumping=false,vy=0,step=0;
+let joyX=0,joyY=0,running=false,jumping=false,vy=0,step=0,cameraYaw=0,cameraPitch=0.22,aiming=false,kills=0,shots=30,ammo=30;
 const joy=document.querySelector('#joystick'),stick=document.querySelector('#stick');let joyId=null;
 function joyMove(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy),max=36;if(len>max){dx*=max/len;dy*=max/len}joyX=dx/max;joyY=dy/max;stick.style.transform=`translate(${dx}px,${dy}px)`}
+const look=document.querySelector('#look');let lookId=null,lastLookX=0,lastLookY=0;look.addEventListener('pointerdown',e=>{lookId=e.pointerId;lastLookX=e.clientX;lastLookY=e.clientY;look.setPointerCapture(lookId)});look.addEventListener('pointermove',e=>{if(e.pointerId!==lookId)return;cameraYaw-=(e.clientX-lastLookX)*.006;cameraPitch=clamp(cameraPitch+(e.clientY-lastLookY)*.003,-.15,.7);lastLookX=e.clientX;lastLookY=e.clientY});function endLook(){lookId=null}look.addEventListener('pointerup',endLook);look.addEventListener('pointercancel',endLook);
+document.querySelector('#aim').addEventListener('pointerdown',()=>{aiming=true;document.querySelector('#aim').textContent='AIM ✓'});document.querySelector('#aim').addEventListener('pointerup',()=>{aiming=false;document.querySelector('#aim').textContent='AIM'});
+document.querySelector('#fire').addEventListener('pointerdown',e=>{e.preventDefault();if(ammo>0){ammo--;document.querySelector('#fire').textContent=''+ammo;document.querySelector('#missionText').textContent='Shots fired · prototype only'}else document.querySelector('#missionText').textContent='Reload with R / tap FIRE'});
 joy.addEventListener('pointerdown',e=>{joyId=e.pointerId;joy.setPointerCapture(joyId);joyMove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e)});function joyEnd(){joyId=null;joyX=joyY=0;stick.style.transform='translate(0,0)'}joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
 document.querySelector('#run').addEventListener('pointerdown',e=>{e.preventDefault();running=true});['pointerup','pointercancel','pointerleave'].forEach(ev=>document.querySelector('#run').addEventListener(ev,()=>running=false));
 document.querySelector('#jump').addEventListener('pointerdown',e=>{e.preventDefault();if(player.position.y<.05){vy=7.2;jumping=true}});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function update(dt){if(playerMixer)playerMixer.update(dt);let f=(keys.w||keys.arrowup?-1:0)+(keys.s||keys.arrowdown?1:0)+joyY;let side=(keys.a||keys.arrowleft?-1:0)+(keys.d||keys.arrowright?1:0)+joyX;
 const len=Math.hypot(f,side);if(len>.08){
-if(player.userData.modelReady){const idle=player.userData.idle;const chosen=(running||keys.shift)?playerRun:playerWalk;if(chosen&&!chosen.isRunning()){if(idle)idle.stop();if(playerWalk)playerWalk.stop();if(playerRun)playerRun.stop();chosen.reset().play()}}f/=Math.max(1,len);side/=Math.max(1,len);const speed=running||keys.shift?13:6.5;const ang=Math.atan2(side,-f);player.rotation.y=ang;player.position.x+=Math.sin(ang)*speed*dt;player.position.z+=Math.cos(ang)*speed*dt;step+=dt*speed;legs[0].rotation.x=Math.sin(step*1.4)*.55;legs[1].rotation.x=-Math.sin(step*1.4)*.55;arms[0].rotation.x=-Math.sin(step*1.4)*.4;arms[1].rotation.x=Math.sin(step*1.4)*.4}else{legs.forEach(l=>l.rotation.x*=.8);arms.forEach(a=>a.rotation.x*=.8);if(player.userData.modelReady){if(playerWalk)playerWalk.stop();if(playerRun)playerRun.stop();if(player.userData.idle&&!player.userData.idle.isRunning())player.userData.idle.reset().play()}}
+if(player.userData.modelReady){const idle=player.userData.idle;const chosen=(running||keys.shift)?playerRun:playerWalk;if(chosen&&!chosen.isRunning()){if(idle)idle.stop();if(playerWalk)playerWalk.stop();if(playerRun)playerRun.stop();chosen.reset().play()}}f/=Math.max(1,len);side/=Math.max(1,len);const speed=running||keys.shift?13:6.5;const moveAng=Math.atan2(side,-f)+cameraYaw;player.rotation.y=moveAng;player.position.x+=Math.sin(moveAng)*speed*dt;player.position.z+=Math.cos(moveAng)*speed*dt;step+=dt*speed;legs[0].rotation.x=Math.sin(step*1.4)*.55;legs[1].rotation.x=-Math.sin(step*1.4)*.55;arms[0].rotation.x=-Math.sin(step*1.4)*.4;arms[1].rotation.x=Math.sin(step*1.4)*.4}else{legs.forEach(l=>l.rotation.x*=.8);arms.forEach(a=>a.rotation.x*=.8);if(player.userData.modelReady){if(playerWalk)playerWalk.stop();if(playerRun)playerRun.stop();if(player.userData.idle&&!player.userData.idle.isRunning())player.userData.idle.reset().play()}}
 player.position.x=clamp(player.position.x,-165,165);player.position.z=clamp(player.position.z,-160,160);
 if(player.position.y>.0||vy>0){player.position.y+=vy*dt;vy-=18*dt;if(player.position.y<0){player.position.y=0;vy=0;jumping=false}}
-const desired=new THREE.Vector3(player.position.x,player.position.y+5.5,player.position.z+10.5);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(player.position.x,player.position.y+1.2,player.position.z-1);
-const z=player.position.z;document.querySelector('#location').textContent=z<-40?'📍 JANTAR MANTAR':(z<35?'📍 CONNAUGHT PLACE':(z>85?'📍 INDIA GATE':'📍 CENTRAL DELHI'));
+const back=aiming?7.2:10.5, height=aiming?3.6:5.5;const desired=new THREE.Vector3(player.position.x-Math.sin(cameraYaw)*back,player.position.y+height+cameraPitch*5,player.position.z+Math.cos(cameraYaw)*back);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(player.position.x+Math.sin(cameraYaw)*5,player.position.y+1.2,player.position.z-Math.cos(cameraYaw)*5);
+const z=player.position.z;document.querySelector('#location').textContent=z<-40?'📍 JANTAR MANTAR':(z<35?'📍 CONNAUGHT PLACE':(z>85?'📍 INDIA GATE':'📍 CENTRAL DELHI'));document.querySelector('#missionText').textContent=z<-35?'Reach Connaught Place':(z<70?'Explore Central Delhi':'Reach India Gate');
 }
 let prev=performance.now();function loop(now){const dt=Math.min(.035,(now-prev)/1000);prev=now;update(dt);renderer.render(scene,camera);requestAnimationFrame(loop)}
+addEventListener('keydown',e=>{if(e.key.toLowerCase()==='r'){ammo=30;document.querySelector('#fire').textContent='30';document.querySelector('#missionText').textContent='Reloaded'} });
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.5))});
 document.querySelector('#loading').remove();requestAnimationFrame(loop);
 </script></body></html>
